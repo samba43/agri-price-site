@@ -131,19 +131,17 @@ nav {
 #enquiry-content form,
 #enquiry-content .visiting-card,
 #close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 26px;
-  cursor: pointer;
-  color: #333;
-  z-index: 99999;
-  padding: 5px 10px;
-  display: block;
+  position: relative;
+  z-index: 1;
 }
 
-#close-btn:hover {
-  color: red;
+#close-btn {
+  font-size: 26px;
+  cursor: pointer;
+  float: left;
+  color: #333;
+  padding: 5px 10px;
+  display: block;
 }
 
 #close-btn:hover {
