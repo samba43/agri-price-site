@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -116,7 +116,31 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
-</script>
+// SCROLL ANIMATION
+  var cards = document.querySelectorAll('.card');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
 
+  cards.forEach(function(card) {
+    observer.observe(card);
+  });
+</script>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-content">
+    <p>🌾 PureHarvest — 100% Natural, 0% Chemical</p>
+    <div class="social-links">
+      <a href="#" target="_blank">📘 Facebook</a>
+      <a href="#" target="_blank">📸 Instagram</a>
+      <a href="https://wa.me/91XXXXXXXXXX" target="_blank">💬 WhatsApp</a>
+    </div>
+    <p class="footer-bottom">© 2025 PureHarvest. All rights reserved.</p>
+  </div>
+</footer>
 </body>
 </html>
