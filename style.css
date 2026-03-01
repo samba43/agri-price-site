@@ -1,0 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #f0f7f0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* HEADER */
+  header {
+    background-color: #2d6a2d;
+    color: white;
+    text-align: center;
+    padding: 30px;
+  }
+  
+  header p {
+    margin-top: 8px;
+    font-size: 16px;
+    color: #c8e6c8;
+  }
+  
+  /* PRODUCTS */
+  .products-section {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .products-section h2 {
+    color: #2d6a2d;
+    margin-bottom: 30px;
+    font-size: 28px;
+  }
+  
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    width: 220px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .card h3 {
+    margin: 12px 0 8px;
+    color: #333;
+  }
+  
+  .card p {
+    font-size: 14px;
+    color: #555;
+    margin: 4px 0;
+  }
+  
+  .our-price { color: #2d6a2d; font-weight: bold; }
+  .market-price { color: #e53935; text-decoration: line-through; }
+  .save { color: #ff9800; font-weight: bold; }
+  .instock { color: green; font-weight: bold; }
+  .outstock { color: red; font-weight: bold; }
+  
+  /* ENQUIRY */
+  .enquiry-section {
+    background: white;
+    max-width: 500px;
+    margin: 20px auto 40px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .enquiry-section h2 {
+    color: #2d6a2d;
+    margin-bottom: 20px;
+  }
+  
+  .enquiry-section input,
+  .enquiry-section textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  
+  .enquiry-section textarea {
+    height: 100px;
+  }
+  
+  .enquiry-section button {
+    background-color: #2d6a2d;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .enquiry-section button:hover {
+    background-color: #1a4a1a;
+  }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PureHarvest</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <!-- HEADER -->
+    <header>
+      <h1>🌾 PureHarvest </h1>
+      <p>Compare our prices with market prices — 100% natural, 0% chemical & Always Fresh, Always Fair!</p>
+    </header>
+
+    <!-- PRODUCTS SECTION -->
+    <section class="products-section">
+      <h2>Products</h2>
+      <div class="cards-container">
+
+        <div class="card">
+          <img src="images/tomato.jpg" alt="Tomato"/>
+          <h3>Tomato</h3>
+          <p>Our Price: <span class="our-price">₹20/kg</span></p>
+          <p>Market Price: <span class="market-price">₹35/kg</span></p>
+          <p>You Save: <span class="save">₹15</span></p>
+          <p class="instock">✅ In Stock</p>
+        </div>
+
+        <div class="card">
+          <img src="images/onion.jpg" alt="Onion"/>
+          <h3>Onion</h3>
+          <p>Our Price: <span class="our-price">₹25/kg</span></p>
+          <p>Market Price: <span class="market-price">₹40/kg</span></p>
+          <p>You Save: <span class="save">₹15</span></p>
+          <p class="outstock">❌ Out of Stock</p>
+        </div>
+
+        <div class="card">
+          <img src="images/potato.jpg" alt="Potato"/>
+          <h3>Potato</h3>
+          <p>Our Price: <span class="our-price">₹18/kg</span></p>
+          <p>Market Price: <span class="market-price">₹28/kg</span></p>
+          <p>You Save: <span class="save">₹10</span></p>
+          <p class="instock">✅ In Stock</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ENQUIRY -->
+    <section class="enquiry-section">
+      <h2>📩 Send an Enquiry</h2>
+      <form action="https://formspree.io/f/xaqdzoqb" method="POST">
+        <input type="text" name="name" placeholder="Your Name" /><br/>
+        <input type="tel" name="phone" placeholder="Your Phone Number" /><br/>
+        <textarea name="message" placeholder="What product are you looking for?"></textarea><br/>
+        <textarea name="message" placeholder="any questions?"></textarea><br/>
+        <button type="submit">Send Enquiry</button>
+      </form>
+    </section>
+
+  </body>
+</html>
