@@ -1,119 +1,115 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  <title>PureHarvest</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <link rel="stylesheet" href="style.css">
+<head>
+<title>PureHarvest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="stylesheet" href="style.css">
 </head>
-  <body>
+<body>
 
-    <!-- SPLASH SCREEN -->
-    <div id="splash">
-      <img src="images/logo.png" alt="Logo" id="splash-logo"/>
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <img src="images/logo.png" alt="Logo" id="splash-logo"/>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">🌾 PureHarvest</div>
+  <div class="nav-links">
+    <a href="about.html">About</a>
+    <button id="open-btn">Enquiry</button>
+  </div>
+</nav>
+
+<!-- SLIDING ENQUIRY PANEL -->
+<div id="enquiry-panel">
+  <span id="close-btn">✕</span>
+  <div id="enquiry-content">
+    <div class="enquiry-overlay"></div>
+    <div class="enquiry-inner">
+      <h2>📩 Send an Enquiry</h2>
+      <form action="https://formspree.io/f/xaqdzoqb" method="POST">
+        <input type="text" name="name" placeholder="Your Name" /><br/>
+        <input type="tel" name="phone" placeholder="Your Phone Number" /><br/>
+        <textarea name="message" placeholder="What product are you looking for?"></textarea><br/>
+        <textarea name="questions" placeholder="Any questions?"></textarea><br/>
+        <button type="submit">Send Enquiry</button>
+      </form>
+      <img src="images/vcard.jpg" alt="PureHarvest Visiting Card" class="visiting-card"/>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay"></div>
+
+<!-- HEADER -->
+<header>
+  <h1>🌾 PureHarvest</h1>
+  <p>Compare our prices with market prices — 100% natural, 0% chemical & Always Fresh, Always Fair!</p>
+</header>
+
+<!-- PRODUCTS SECTION -->
+<section class="products-section">
+  <h2>Products</h2>
+  <div class="cards-container">
+
+    <div class="card">
+      <img src="images/tomato.jpg" alt="Tomato"/>
+      <h3>Tomato</h3>
+      <p>Our Price: <span class="our-price">₹20/kg</span></p>
+      <p>Market Price: <span class="market-price">₹35/kg</span></p>
+      <p>You Save: <span class="save">₹15</span></p>
+      <p class="instock">✅ In Stock</p>
     </div>
 
-    <!-- NAVBAR -->
-    <nav>
-      <div class="nav-logo">🌾 PureHarvest</div>
-      <div class="nav-links">
-        <a href="about.html">About</a>
-        <button id="open-btn">Enquiry</button>
-      </div>
-    </nav>
-
-    <!-- SLIDING ENQUIRY PANEL -->
-    <div id="enquiry-panel">
-      <div id="enquiry-content">
-        <span id="close-btn">✕</span>
-        <h2>📩 Send an Enquiry</h2>
-        <form action="https://formspree.io/f/xaqdzoqb" method="POST">
-          <input type="text" name="name" placeholder="Your Name" /><br/>
-          <input type="tel" name="phone" placeholder="Your Phone Number" /><br/>
-          <textarea name="message" placeholder="What product are you looking for?"></textarea><br/>
-          <textarea name="questions" placeholder="Any questions?"></textarea><br/>
-          <button type="submit">Send Enquiry</button>
-        </form>
-
-        <!-- VISITING CARD -->
-        <img src="images/vcard.jpg" alt="PureHarvest Visiting Card" class="visiting-card"/>
-
-      </div>
+    <div class="card">
+      <img src="images/onion.jpg" alt="Onion"/>
+      <h3>Onion</h3>
+      <p>Our Price: <span class="our-price">₹25/kg</span></p>
+      <p>Market Price: <span class="market-price">₹40/kg</span></p>
+      <p>You Save: <span class="save">₹15</span></p>
+      <p class="outstock">❌ Out of Stock</p>
     </div>
 
-    <!-- OVERLAY -->
-    <div id="overlay"></div>
+    <div class="card">
+      <img src="images/potato.jpg" alt="Potato"/>
+      <h3>Potato</h3>
+      <p>Our Price: <span class="our-price">₹18/kg</span></p>
+      <p>Market Price: <span class="market-price">₹28/kg</span></p>
+      <p>You Save: <span class="save">₹10</span></p>
+      <p class="instock">✅ In Stock</p>
+    </div>
 
-    <!-- HEADER -->
-    <header>
-      <h1>🌾 PureHarvest</h1>
-      <p>Compare our prices with market prices — 100% natural, 0% chemical & Always Fresh, Always Fair!</p>
-    </header>
+  </div>
+</section>
 
-    <!-- PRODUCTS SECTION -->
-    <section class="products-section">
-      <h2>Products</h2>
-      <div class="cards-container">
+<!-- JAVASCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var openBtn = document.getElementById("open-btn");
+  var closeBtn = document.getElementById("close-btn");
+  var overlay = document.getElementById("overlay");
+  var panel = document.getElementById("enquiry-panel");
 
-        <div class="card">
-          <img src="images/tomato.jpg" alt="Tomato"/>
-          <h3>Tomato</h3>
-          <p>Our Price: <span class="our-price">₹20/kg</span></p>
-          <p>Market Price: <span class="market-price">₹35/kg</span></p>
-          <p>You Save: <span class="save">₹15</span></p>
-          <p class="instock">✅ In Stock</p>
-        </div>
+  openBtn.addEventListener("click", function() {
+    panel.classList.add("open");
+    overlay.classList.add("show");
+  });
 
-        <div class="card">
-          <img src="images/onion.jpg" alt="Onion"/>
-          <h3>Onion</h3>
-          <p>Our Price: <span class="our-price">₹25/kg</span></p>
-          <p>Market Price: <span class="market-price">₹40/kg</span></p>
-          <p>You Save: <span class="save">₹15</span></p>
-          <p class="outstock">❌ Out of Stock</p>
-        </div>
+  closeBtn.addEventListener("click", function() {
+    panel.classList.remove("open");
+    overlay.classList.remove("show");
+  });
 
-        <div class="card">
-          <img src="images/potato.jpg" alt="Potato"/>
-          <h3>Potato</h3>
-          <p>Our Price: <span class="our-price">₹18/kg</span></p>
-          <p>Market Price: <span class="market-price">₹28/kg</span></p>
-          <p>You Save: <span class="save">₹10</span></p>
-          <p class="instock">✅ In Stock</p>
-        </div>
+  overlay.addEventListener("click", function() {
+    panel.classList.remove("open");
+    overlay.classList.remove("show");
+  });
+});
+</script>
 
-      </div>
-    </section>
-
-  
-
-    <!-- JAVASCRIPT -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-
-        var openBtn = document.getElementById("open-btn");
-        var closeBtn = document.getElementById("close-btn");
-        var overlay = document.getElementById("overlay");
-        var panel = document.getElementById("enquiry-panel");
-
-        openBtn.addEventListener("click", function() {
-          panel.classList.add("open");
-          overlay.classList.add("show");
-        });
-
-        closeBtn.addEventListener("click", function() {
-          panel.classList.remove("open");
-          overlay.classList.remove("show");
-        });
-
-        overlay.addEventListener("click", function() {
-          panel.classList.remove("open");
-          overlay.classList.remove("show");
-        });
-
-      });
-    </script>
-
-  </body>
+</body>
 </html>
