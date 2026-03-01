@@ -54,41 +54,16 @@
 <!-- PRODUCTS SECTION -->
 <section class="products-section">
   <h2>Products</h2>
-  <div class="cards-container">
-
-    <div class="card">
-      <img src="images/tomato.jpg" alt="Tomato"/>
-      <h3>Tomato</h3>
-      <p>Our Price: <span class="our-price">₹20/kg</span></p>
-      <p>Market Price: <span class="market-price">₹35/kg</span></p>
-      <p>You Save: <span class="save">₹15</span></p>
-      <p class="instock">✅ In Stock</p>
-    </div>
-
-    <div class="card">
-      <img src="images/onion.jpg" alt="Onion"/>
-      <h3>Onion</h3>
-      <p>Our Price: <span class="our-price">₹25/kg</span></p>
-      <p>Market Price: <span class="market-price">₹40/kg</span></p>
-      <p>You Save: <span class="save">₹15</span></p>
-      <p class="outstock">❌ Out of Stock</p>
-    </div>
-
-    <div class="card">
-      <img src="images/potato.jpg" alt="Potato"/>
-      <h3>Potato</h3>
-      <p>Our Price: <span class="our-price">₹18/kg</span></p>
-      <p>Market Price: <span class="market-price">₹28/kg</span></p>
-      <p>You Save: <span class="save">₹10</span></p>
-      <p class="instock">✅ In Stock</p>
-    </div>
-
+  <div class="cards-container" id="cards-container">
+    <p id="loading">Loading products...</p>
   </div>
 </section>
 
 <!-- JAVASCRIPT -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+  // ENQUIRY PANEL
   var openBtn = document.getElementById("open-btn");
   var closeBtn = document.getElementById("close-btn");
   var overlay = document.getElementById("overlay");
@@ -108,6 +83,38 @@ document.addEventListener("DOMContentLoaded", function() {
     panel.classList.remove("open");
     overlay.classList.remove("show");
   });
+
+  // LOAD PRODUCTS FROM GOOGLE SHEETS
+  var sheetURL = "https://script.google.com/macros/s/AKfycbyNQfn6obSF35OZqlw2jDKgszFLJs0SWyGfU06N4AJ9IwEOxd05LaVzDRXMUEZB3Dcs/exec";
+
+  fetch(sheetURL)
+    .then(function(response) { return response.json(); })
+    .then(function(products) {
+      var container = document.getElementById("cards-container");
+      container.innerHTML = "";
+
+      products.forEach(function(product) {
+        var statusClass = product.status === "In Stock" ? "instock" : "outstock";
+        var statusIcon = product.status === "In Stock" ? "✅" : "❌";
+        var savings = product.marketprice - product.ourprice;
+
+        var card = `
+          <div class="card">
+            <img src="${product.image}" alt="${product.name}"/>
+            <h3>${product.name}</h3>
+            <p>Our Price: <span class="our-price">₹${product.ourprice}/kg</span></p>
+            <p>Market Price: <span class="market-price">₹${product.marketprice}/kg</span></p>
+            <p>You Save: <span class="save">₹${savings}</span></p>
+            <p class="${statusClass}">${statusIcon} ${product.status}</p>
+          </div>
+        `;
+        container.innerHTML += card;
+      });
+    })
+    .catch(function() {
+      document.getElementById("cards-container").innerHTML = "<p>Unable to load products. Please try again later.</p>";
+    });
+
 });
 </script>
 
