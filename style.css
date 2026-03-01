@@ -128,7 +128,9 @@ nav {
 }
 
 #enquiry-content h2,
-#enquiry-content form {
+#enquiry-content form,
+#enquiry-content .visiting-card,
+#close-btn {
   position: relative;
   z-index: 1;
 }
@@ -181,6 +183,7 @@ nav {
 #enquiry-content button[type="submit"]:hover {
   background-color: #1a4a1a;
 }
+
 /* VISITING CARD */
 .visiting-card {
   margin-top: 25px;
@@ -189,6 +192,7 @@ nav {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   opacity: 1;
 }
+
 /* OVERLAY */
 #overlay {
   display: none;
