@@ -17,7 +17,7 @@
       <div class="nav-logo">🌾 PureHarvest</div>
       <div class="nav-links">
         <a href="#about">About</a>
-        <button onclick="openEnquiry()">Enquiry</button>
+        <button id="open-btn">Enquiry</button>
       </div>
     </nav>
 
@@ -32,16 +32,16 @@
           <textarea name="message" placeholder="What product are you looking for?"></textarea><br/>
           <textarea name="questions" placeholder="Any questions?"></textarea><br/>
           <button type="submit">Send Enquiry</button>
-      </form>
+        </form>
 
-      <!-- VISITING CARD -->
-      <img src="images/vcard.jpg" alt="PureHarvest Visiting Card" class="visiting-card"/>
+        <!-- VISITING CARD -->
+        <img src="images/vcard.jpg" alt="PureHarvest Visiting Card" class="visiting-card"/>
 
-    </div>
+      </div>
     </div>
 
     <!-- OVERLAY -->
-    <div id="overlay" onclick="closeEnquiry()"></div>
+    <div id="overlay"></div>
 
     <!-- HEADER -->
     <header>
@@ -96,31 +96,31 @@
     </section>
 
     <!-- JAVASCRIPT -->
-   <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    
-    var openBtn = document.querySelector(".nav-links button");
-    var closeBtn = document.getElementById("close-btn");
-    var overlay = document.getElementById("overlay");
-    var panel = document.getElementById("enquiry-panel");
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
 
-    openBtn.addEventListener("click", function() {
-      panel.classList.add("open");
-      overlay.classList.add("show");
-    });
+        var openBtn = document.getElementById("open-btn");
+        var closeBtn = document.getElementById("close-btn");
+        var overlay = document.getElementById("overlay");
+        var panel = document.getElementById("enquiry-panel");
 
-    closeBtn.addEventListener("click", function() {
-      panel.classList.remove("open");
-      overlay.classList.remove("show");
-    });
+        openBtn.addEventListener("click", function() {
+          panel.classList.add("open");
+          overlay.classList.add("show");
+        });
 
-    overlay.addEventListener("click", function() {
-      panel.classList.remove("open");
-      overlay.classList.remove("show");
-    });
+        closeBtn.addEventListener("click", function() {
+          panel.classList.remove("open");
+          overlay.classList.remove("show");
+        });
 
-  });
-</script>
+        overlay.addEventListener("click", function() {
+          panel.classList.remove("open");
+          overlay.classList.remove("show");
+        });
+
+      });
+    </script>
 
   </body>
 </html>
