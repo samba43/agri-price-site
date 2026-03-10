@@ -129,7 +129,7 @@
     // SAVE USER DETAILS USING UPSERT
     const { error: dbError } = await dbClient
       .from('users')
-      .upsert([{
+      .insert([{
         id: data.user.id,
         email: email,
         name: name,
