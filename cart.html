@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Cart - PureHarvest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">🌾 PureHarvest</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="profile.html">👤 Profile</a>
+  </div>
+</nav>
+
+<!-- CART SECTION -->
+<section class="cart-section">
+  <h2>🛒 My Cart</h2>
+  <div id="cart-items">
+    <p>Loading cart...</p>
+  </div>
+  <div id="cart-summary" style="display:none">
+    <div class="cart-total">
+      <h3>Total: <span id="cart-total">₹0</span></h3>
+    </div>
+    <div class="delivery-options">
+      <h3>🚚 Delivery Option</h3>
+      <label>
+        <input type="radio" name="delivery" value="pickup" checked/>
+        🏪 Pickup from Farm (Free)
+      </label><br/>
+      <label>
+        <input type="radio" name="delivery" value="delivery"/>
+        🚚 Home Delivery (Extra charges apply)
+      </label>
+    </div>
+    <button class="auth-btn" onclick="placeOrder()">✅ Place Order</button>
+    <button class="cancel-btn" onclick="clearCart()">🗑️ Clear Cart</button>
+  </div>
+</section>
+
+<!-- SUCCESS ANIMATION -->
+<div id="success-overlay">
+  <div id="success-box">
+    <div id="success-icon">✅</div>
+    <h2>Order Placed!</h2>
+    <p>Thank you for your order! 🌾</p>
+    <p>We will contact you soon.</p>
+    <button class="auth-btn" onclick="window.location.href='index.html'">
+      🏠 Go Home
+    </button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-content">
+    <p>🌾 PureHarvest — 100% Natural, 0% Chemical</p>
+    <div class="social-links">
+      <a href="https://www.instagram.com/samba_21m/" target="_blank">📸 Instagram</a>
+      <a href="https://wa.me/919666365360" target="_blank">💬 WhatsApp</a>
+    </div>
+    <p class="footer-bottom">© 2025 PureHarvest. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const dbClient = window.supabase.createClient(
+  'https://fiyumrqncvgwuczalgqc.supabase.co',
+  'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
+);
+
+var currentUser = null;
+var cartData = [];
+
+async function loadCart() {
+  const { data: { user } } = await dbClient.auth.getUser();
+
+  if(!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  currentUser = user;
+
+  const { data, error } = await dbClient
+    .from('cart')
+    .select('*')
+    .eq('user_id', user.id);
+
+  if(data && data.length > 0) {
+    cartData = data;
+    renderCart();
+  } else {
+    document.getElementById('cart-items').innerHTML = `
+      <div class="empty-cart">
+        <p>🛒 Your cart is empty!</p>
+        <button class="auth-btn" onclick="window.location.href='index.html'">
+          🌾 Go Shopping
+        </button>
+      </div>
+    `;
+  }
+}
+
+function renderCart() {
+  var container = document.getElementById('cart-items');
+  var total = 0;
+  container.innerHTML = '';
+
+  cartData.forEach(function(item) {
+    var itemTotal = item.price * item.quantity;
+    total += itemTotal;
+
+    container.innerHTML += `
+      <div class="cart-item">
+        <div class="cart-item-details">
+          <h3>${item.product_name}</h3>
+          <p>₹${item.price} × ${item.quantity} ${item.unit} = <strong>₹${itemTotal}</strong></p>
+        </div>
+        <button class="remove-btn" onclick="removeItem('${item.id}')">🗑️</button>
+      </div>
+    `;
+  });
+
+  document.getElementById('cart-total').textContent = '₹' + total;
+  document.getElementById('cart-summary').style.display = 'block';
+}
+
+async function removeItem(id) {
+  await dbClient.from('cart').delete().eq('id', id);
+  cartData = cartData.filter(function(item) { return item.id !== id; });
+  if(cartData.length === 0) {
+    document.getElementById('cart-items').innerHTML = `
+      <div class="empty-cart">
+        <p>🛒 Your cart is empty!</p>
+        <button class="auth-btn" onclick="window.location.href='index.html'">
+          🌾 Go Shopping
+        </button>
+      </div>
+    `;
+    document.getElementById('cart-summary').style.display = 'none';
+  } else {
+    renderCart();
+  }
+}
+
+async function clearCart() {
+  await dbClient.from('cart').delete().eq('user_id', currentUser.id);
+  cartData = [];
+  document.getElementById('cart-items').innerHTML = `
+    <div class="empty-cart">
+      <p>🛒 Your cart is empty!</p>
+      <button class="auth-btn" onclick="window.location.href='index.html'">
+        🌾 Go Shopping
+      </button>
+    </div>
+  `;
+  document.getElementById('cart-summary').style.display = 'none';
+}
+
+async function placeOrder() {
+  var delivery = document.querySelector('input[name="delivery"]:checked').value;
+  var total = cartData.reduce(function(sum, item) {
+    return sum + (item.price * item.quantity);
+  }, 0);
+
+  var orderItems = cartData.map(function(item) {
+    return item.product_name + ' x' + item.quantity + item.unit;
+  }).join(', ');
+
+  const { error } = await dbClient
+    .from('orders')
+    .insert({
+      user_id: currentUser.id,
+      product_name: orderItems,
+      quantity: cartData.length + ' items',
+      total_price: total,
+      status: 'Pending',
+      delivery_type: delivery
+    });
+
+  if(error) {
+    alert('Error placing order! Try again.');
+    return;
+  }
+
+  // SEND EMAIL TO ADMIN
+  await fetch('https://formspree.io/f/xaqdzoqb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: 'PureHarvest Order System',
+      message: `
+🛒 NEW ORDER RECEIVED!
+━━━━━━━━━━━━━━━━━━━━
+Items: ${orderItems}
+Total: ₹${total}
+Delivery: ${delivery}
+Customer ID: ${currentUser.id}
+Time: ${new Date().toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━
+Please check Supabase for full details!
+      `
+    })
+  });
+
+  // CLEAR CART
+  await dbClient.from('cart').delete().eq('user_id', currentUser.id);
+  cartData = [];
+  document.getElementById('cart-summary').style.display = 'none';
+  document.getElementById('cart-items').innerHTML = '';
+
+  // SHOW SUCCESS ANIMATION
+  showSuccessAnimation();
+}
+
+function showSuccessAnimation() {
+  var overlay = document.getElementById('success-overlay');
+  overlay.style.display = 'flex';
+  var icon = document.getElementById('success-icon');
+  icon.style.animation = 'bounceIn 0.6s ease';
+}
+
+loadCart();
+</script>
+
+</body>
+</html>
