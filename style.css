@@ -431,3 +431,83 @@ footer {
   .nav-logo { font-size: 16px; }
   .about-section { margin: 20px 15px; padding: 20px; }
 }
+/* AUTH PAGE */
+.auth-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.auth-box {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2d6a2d;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: white;
+  color: #2d6a2d;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.tab-btn.active {
+  background-color: #2d6a2d;
+  color: white;
+}
+
+.auth-box h2 {
+  color: #2d6a2d;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.auth-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #2d6a2d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-btn:hover {
+  background-color: #1a4a1a;
+}
+
+.auth-msg {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}

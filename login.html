@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login - PureHarvest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">🌾 PureHarvest</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+  </div>
+</nav>
+
+<!-- LOGIN/SIGNUP FORM -->
+<section class="auth-section">
+  <div class="auth-box">
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="login-tab" onclick="showLogin()">Login</button>
+      <button class="tab-btn" id="signup-tab" onclick="showSignup()">Sign Up</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <h2>Welcome Back! 🌾</h2>
+      <input type="email" id="login-email" placeholder="Your Email"/><br/>
+      <input type="password" id="login-password" placeholder="Your Password"/><br/>
+      <button class="auth-btn" onclick="loginUser()">Login</button>
+      <p id="login-msg" class="auth-msg"></p>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" style="display:none">
+      <h2>Join PureHarvest! 🌱</h2>
+      <input type="text" id="signup-name" placeholder="Your Full Name"/><br/>
+      <input type="email" id="signup-email" placeholder="Your Email"/><br/>
+      <input type="tel" id="signup-phone" placeholder="Your Phone Number"/><br/>
+      <input type="text" id="signup-address" placeholder="Your Address"/><br/>
+      <input type="password" id="signup-password" placeholder="Create Password"/><br/>
+      <button class="auth-btn" onclick="signupUser()">Sign Up</button>
+      <p id="signup-msg" class="auth-msg"></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // SUPABASE SETUP
+  const supabase = window.supabase.createClient(
+    'https://fiyumrqncvgwuczalgqc.supabase.co',
+    'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
+  );
+
+  // SHOW LOGIN
+  function showLogin() {
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('login-tab').classList.add('active');
+    document.getElementById('signup-tab').classList.remove('active');
+  }
+
+  // SHOW SIGNUP
+  function showSignup() {
+    document.getElementById('signup-form').style.display = 'block';
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('signup-tab').classList.add('active');
+    document.getElementById('login-tab').classList.remove('active');
+  }
+
+  // LOGIN
+  async function loginUser() {
+    var email = document.getElementById('login-email').value;
+    var password = document.getElementById('login-password').value;
+    var msg = document.getElementById('login-msg');
+
+    if(!email || !password) {
+      msg.style.color = 'red';
+      msg.textContent = 'Please fill all fields!';
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if(error) {
+      msg.style.color = 'red';
+      msg.textContent = 'Wrong email or password!';
+    } else {
+      msg.style.color = 'green';
+      msg.textContent = 'Login successful! Redirecting...';
+      setTimeout(function() {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+  }
+
+  // SIGNUP
+  async function signupUser() {
+    var name = document.getElementById('signup-name').value;
+    var email = document.getElementById('signup-email').value;
+    var phone = document.getElementById('signup-phone').value;
+    var address = document.getElementById('signup-address').value;
+    var password = document.getElementById('signup-password').value;
+    var msg = document.getElementById('signup-msg');
+
+    if(!name || !email || !phone || !address || !password) {
+      msg.style.color = 'red';
+      msg.textContent = 'Please fill all fields!';
+      return;
+    }
+
+    // CREATE AUTH USER
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if(error) {
+      msg.style.color = 'red';
+      msg.textContent = error.message;
+      return;
+    }
+
+    // SAVE USER DETAILS
+    const { error: dbError } = await supabase
+      .from('users')
+      .insert([{
+        id: data.user.id,
+        email: email,
+        name: name,
+        phone: phone,
+        address: address
+      }]);
+
+    if(dbError) {
+      msg.style.color = 'red';
+      msg.textContent = 'Error saving details!';
+    } else {
+      msg.style.color = 'green';
+      msg.textContent = 'Account created! Redirecting...';
+      setTimeout(function() {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+  }
+</script>
+
+</body>
+</html>

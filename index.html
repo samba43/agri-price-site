@@ -20,6 +20,7 @@
   <div class="nav-logo">🌾 PureHarvest</div>
   <div class="nav-links">
     <a href="about.html">About</a>
+    <a href="login.html" id="login-nav">Login</a>
     <button id="open-btn">Enquiry</button>
   </div>
 </nav>
@@ -125,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
         container.innerHTML += card;
       });
 
-      // SCROLL ANIMATION — runs after cards are loaded
+      // SCROLL ANIMATION
       var cards = document.querySelectorAll('.card');
       var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
