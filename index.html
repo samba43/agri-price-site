@@ -21,6 +21,7 @@
   <div class="nav-links">
     <a href="about.html">About</a>
     <a href="login.html" id="login-nav">Login</a>
+    <a href="cart.html" id="cart-nav">🛒 Cart <span id="cart-count">0</span></a>
     <button id="open-btn">Enquiry</button>
   </div>
 </nav>
@@ -81,12 +82,13 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-  // CHECK LOGIN SESSION & SHOW PROFILE ICON
+  // SUPABASE CLIENT
   const dbClient = window.supabase.createClient(
     'https://fiyumrqncvgwuczalgqc.supabase.co',
     'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
   );
 
+  // CHECK LOGIN SESSION & SHOW PROFILE ICON
   dbClient.auth.getUser().then(function(response) {
     var user = response.data.user;
     if(user) {
@@ -94,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function() {
       loginNav.innerHTML = '👤 Profile';
       loginNav.href = 'profile.html';
     }
+    updateCartCount();
   });
 
   // ENQUIRY PANEL
@@ -117,8 +120,62 @@ document.addEventListener("DOMContentLoaded", function() {
     overlay.classList.remove("show");
   });
 
+  // CART FUNCTIONS
+  window.changeQty = function(btn, change) {
+    var input = btn.parentElement.querySelector('.qty-input');
+    var newVal = parseInt(input.value) + change;
+    if(newVal < 1) newVal = 1;
+    input.value = newVal;
+  }
+
+  window.addToCart = async function(name, price, unit, btn) {
+    var user = (await dbClient.auth.getUser()).data.user;
+    if(!user) {
+      alert('Please login first to add items to cart!');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    var qty = parseFloat(btn.parentElement.querySelector('.qty-input').value);
+
+    const { error } = await dbClient
+      .from('cart')
+      .insert({
+        user_id: user.id,
+        product_name: name,
+        price: price,
+        quantity: qty,
+        unit: unit || 'kg'
+      });
+
+    if(error) {
+      alert('Error adding to cart!');
+    } else {
+      btn.textContent = '✅ Added!';
+      btn.style.background = '#388e3c';
+      setTimeout(function() {
+        btn.textContent = '🛒 Add to Cart';
+        btn.style.background = '';
+      }, 1500);
+      updateCartCount();
+    }
+  }
+
+  async function updateCartCount() {
+    var user = (await dbClient.auth.getUser()).data.user;
+    if(user) {
+      const { data } = await dbClient
+        .from('cart')
+        .select('id')
+        .eq('user_id', user.id);
+      if(data) {
+        document.getElementById('cart-count').textContent = data.length;
+      }
+    }
+  }
+
   // LOAD PRODUCTS FROM GOOGLE SHEETS
-  var sheetURL = "https://script.google.com/macros/s/AKfycbyNQfn6obSF35OZqlw2jDKgszFLJs0SWyGfU06N4AJ9IwEOxd05LaVzDRXMUEZB3Dcs/exec";
+  var sheetURL = "https://script.google.com/macros/s/AKfycbwOL_aKA-urBxPlfyCmCLknY4aXdbzAFIiBgMWR1Xp77poYA3EjyvyI_kt01glQwk71/exec";
 
   fetch(sheetURL)
     .then(function(response) { return response.json(); })
@@ -139,6 +196,15 @@ document.addEventListener("DOMContentLoaded", function() {
             <p>Market Price: <span class="market-price">₹${product.marketprice}/kg</span></p>
             <p>You Save: <span class="save">₹${savings}</span></p>
             <p class="${statusClass}">${statusIcon} ${product.status}</p>
+            ${product.status === "In Stock" ? `
+            <div class="quantity-control">
+              <button onclick="changeQty(this, -1)">-</button>
+              <input type="number" value="1" min="1" max="${product.stock}" class="qty-input"/>
+              <button onclick="changeQty(this, 1)">+</button>
+            </div>
+            <button class="add-cart-btn" onclick="addToCart('${product.name}', ${product.ourprice}, '${product.unit}', this)">
+              🛒 Add to Cart
+            </button>` : ''}
           </div>
         `;
         container.innerHTML += card;
