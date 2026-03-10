@@ -55,7 +55,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // SUPABASE SETUP
-  const supabase = window.supabase.createClient(
+  const dbClient = window.supabase.createClient(
     'https://fiyumrqncvgwuczalgqc.supabase.co',
     'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
   );
@@ -88,7 +88,7 @@
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await dbClient.auth.signInWithPassword({
       email: email,
       password: password
     });
@@ -121,7 +121,7 @@
     }
 
     // CREATE AUTH USER
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await dbClient.auth.signUp({
       email: email,
       password: password
     });
@@ -133,7 +133,7 @@
     }
 
     // SAVE USER DETAILS
-    const { error: dbError } = await supabase
+    const { error: dbError } = await dbClient
       .from('users')
       .insert([{
         id: data.user.id,
