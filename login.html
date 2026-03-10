@@ -54,13 +54,11 @@
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // SUPABASE SETUP
   const dbClient = window.supabase.createClient(
     'https://fiyumrqncvgwuczalgqc.supabase.co',
     'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
   );
 
-  // SHOW LOGIN
   function showLogin() {
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('signup-form').style.display = 'none';
@@ -68,7 +66,6 @@
     document.getElementById('signup-tab').classList.remove('active');
   }
 
-  // SHOW SIGNUP
   function showSignup() {
     document.getElementById('signup-form').style.display = 'block';
     document.getElementById('login-form').style.display = 'none';
@@ -76,7 +73,6 @@
     document.getElementById('login-tab').classList.remove('active');
   }
 
-  // LOGIN
   async function loginUser() {
     var email = document.getElementById('login-email').value;
     var password = document.getElementById('login-password').value;
@@ -100,12 +96,11 @@
       msg.style.color = 'green';
       msg.textContent = 'Login successful! Redirecting...';
       setTimeout(function() {
-        window.location.href = 'index.html';
+        window.location.href = 'profile.html';
       }, 1000);
     }
   }
 
-  // SIGNUP
   async function signupUser() {
     var name = document.getElementById('signup-name').value;
     var email = document.getElementById('signup-email').value;
@@ -120,7 +115,6 @@
       return;
     }
 
-    // CREATE AUTH USER
     const { data, error } = await dbClient.auth.signUp({
       email: email,
       password: password
@@ -132,7 +126,6 @@
       return;
     }
 
-    // SAVE USER DETAILS
     const { error: dbError } = await dbClient
       .from('users')
       .insert([{
@@ -150,7 +143,7 @@
       msg.style.color = 'green';
       msg.textContent = 'Account created! Redirecting...';
       setTimeout(function() {
-        window.location.href = 'index.html';
+        window.location.href = 'profile.html';
       }, 1000);
     }
   }

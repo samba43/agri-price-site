@@ -50,7 +50,6 @@ const dbClient = window.supabase.createClient(
   'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
 );
 
-// CHECK IF LOGGED IN
 async function loadProfile() {
   const { data: { user } } = await dbClient.auth.getUser();
 
@@ -59,7 +58,6 @@ async function loadProfile() {
     return;
   }
 
-  // GET USER DETAILS FROM DATABASE
   const { data, error } = await dbClient
     .from('users')
     .select('*')
@@ -74,10 +72,9 @@ async function loadProfile() {
   }
 }
 
-// LOGOUT
 async function logoutUser() {
   await dbClient.auth.signOut();
-  window.location.href = 'profile.html';
+  window.location.href = 'index.html';
 }
 
 loadProfile();
