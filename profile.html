@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Profile - PureHarvest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">🌾 PureHarvest</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <button class="auth-btn-small" onclick="logoutUser()">Logout</button>
+  </div>
+</nav>
+
+<!-- PROFILE SECTION -->
+<section class="profile-section">
+  <div class="profile-box">
+    <div class="profile-avatar">👤</div>
+    <h2 id="profile-name">Loading...</h2>
+    <p id="profile-email" class="profile-email"></p>
+
+    <div class="profile-details">
+      <div class="profile-item">
+        <span class="profile-label">📱 Phone</span>
+        <span id="profile-phone" class="profile-value">-</span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">📍 Address</span>
+        <span id="profile-address" class="profile-value">-</span>
+      </div>
+    </div>
+
+    <button class="auth-btn" onclick="window.location.href='index.html'">
+      🌾 Go Shopping
+    </button>
+  </div>
+</section>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const dbClient = window.supabase.createClient(
+  'https://fiyumrqncvgwuczalgqc.supabase.co',
+  'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
+);
+
+// CHECK IF LOGGED IN
+async function loadProfile() {
+  const { data: { user } } = await dbClient.auth.getUser();
+
+  if(!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // GET USER DETAILS FROM DATABASE
+  const { data, error } = await dbClient
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if(data) {
+    document.getElementById('profile-name').textContent = data.name;
+    document.getElementById('profile-email').textContent = data.email;
+    document.getElementById('profile-phone').textContent = data.phone;
+    document.getElementById('profile-address').textContent = data.address;
+  }
+}
+
+// LOGOUT
+async function logoutUser() {
+  await dbClient.auth.signOut();
+  window.location.href = 'profile.html';
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

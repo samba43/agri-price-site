@@ -511,3 +511,83 @@ footer {
   font-size: 14px;
   text-align: center;
 }
+/* PROFILE PAGE */
+.profile-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.profile-box {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.profile-avatar {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.profile-box h2 {
+  color: #2d6a2d;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
+.profile-email {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.profile-details {
+  background: #f0f7f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.profile-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.profile-item:last-child {
+  margin-bottom: 0;
+}
+
+.profile-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.profile-value {
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.auth-btn-small {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-btn-small:hover {
+  background-color: #c62828;
+}
