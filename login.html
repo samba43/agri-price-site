@@ -126,19 +126,20 @@
       return;
     }
 
+    // SAVE USER DETAILS USING UPSERT
     const { error: dbError } = await dbClient
       .from('users')
-      .insert([{
+      .upsert([{
         id: data.user.id,
         email: email,
         name: name,
         phone: phone,
         address: address
-      }]);
+      }], { onConflict: 'id' });
 
     if(dbError) {
       msg.style.color = 'red';
-      msg.textContent = 'Error saving details!';
+      msg.textContent = 'Error saving details! ' + dbError.message;
     } else {
       msg.style.color = 'green';
       msg.textContent = 'Account created! Redirecting...';
