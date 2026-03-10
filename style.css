@@ -591,3 +591,47 @@ footer {
 .auth-btn-small:hover {
   background-color: #c62828;
 }
+/* EDIT PROFILE */
+.edit-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: white;
+  color: #2d6a2d;
+  border: 2px solid #2d6a2d;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.edit-btn:hover {
+  background-color: #f0f7f0;
+}
+
+.cancel-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: white;
+  color: #e53935;
+  border: 2px solid #e53935;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 8px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.cancel-btn:hover {
+  background-color: #fff0f0;
+}
+
+#edit-mode input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}

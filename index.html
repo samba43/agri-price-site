@@ -74,9 +74,27 @@
   </div>
 </footer>
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- JAVASCRIPT -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+  // CHECK LOGIN SESSION & SHOW PROFILE ICON
+  const dbClient = window.supabase.createClient(
+    'https://fiyumrqncvgwuczalgqc.supabase.co',
+    'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
+  );
+
+  dbClient.auth.getUser().then(function(response) {
+    var user = response.data.user;
+    if(user) {
+      var loginNav = document.getElementById('login-nav');
+      loginNav.innerHTML = '👤 Profile';
+      loginNav.href = 'profile.html';
+    }
+  });
 
   // ENQUIRY PANEL
   var openBtn = document.getElementById("open-btn");
