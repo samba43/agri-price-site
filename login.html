@@ -42,7 +42,11 @@
       <input type="text" id="signup-name" placeholder="Your Full Name"/><br/>
       <input type="email" id="signup-email" placeholder="Your Email"/><br/>
       <input type="tel" id="signup-phone" placeholder="Your Phone Number"/><br/>
-      <input type="text" id="signup-address" placeholder="Your Address"/><br/>
+      <input type="text" id="signup-house" placeholder="House / Flat No"/><br/>
+      <input type="text" id="signup-street" placeholder="Street / Area"/><br/>
+      <input type="text" id="signup-city" placeholder="City"/><br/>
+      <input type="text" id="signup-state" placeholder="State"/><br/>
+      <input type="text" id="signup-pincode" placeholder="Pincode" maxlength="6"/><br/>
       <input type="password" id="signup-password" placeholder="Create Password"/><br/>
       <button class="auth-btn" onclick="signupUser()">Sign Up</button>
       <p id="signup-msg" class="auth-msg"></p>
@@ -102,18 +106,25 @@
   }
 
   async function signupUser() {
-    var name = document.getElementById('signup-name').value;
-    var email = document.getElementById('signup-email').value;
-    var phone = document.getElementById('signup-phone').value;
-    var address = document.getElementById('signup-address').value;
+    var name     = document.getElementById('signup-name').value.trim();
+    var email    = document.getElementById('signup-email').value.trim();
+    var phone    = document.getElementById('signup-phone').value.trim();
+    var house    = document.getElementById('signup-house').value.trim();
+    var street   = document.getElementById('signup-street').value.trim();
+    var city     = document.getElementById('signup-city').value.trim();
+    var state    = document.getElementById('signup-state').value.trim();
+    var pincode  = document.getElementById('signup-pincode').value.trim();
     var password = document.getElementById('signup-password').value;
-    var msg = document.getElementById('signup-msg');
+    var msg      = document.getElementById('signup-msg');
 
-    if(!name || !email || !phone || !address || !password) {
+    if(!name || !email || !phone || !house || !street || !city || !state || !pincode || !password) {
       msg.style.color = 'red';
       msg.textContent = 'Please fill all fields!';
       return;
     }
+
+    // Combine into a structured address string for the DB
+    var address = house + ', ' + street + ', ' + city + ', ' + state + ' - ' + pincode;
 
     const { data, error } = await dbClient.auth.signUp({
       email: email,
@@ -126,7 +137,6 @@
       return;
     }
 
-    // SAVE USER DETAILS USING UPSERT
     const { error: dbError } = await dbClient
       .from('users')
       .insert([{

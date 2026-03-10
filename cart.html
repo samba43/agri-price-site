@@ -25,9 +25,22 @@
     <p>Loading cart...</p>
   </div>
   <div id="cart-summary" style="display:none">
+
+    <!-- DELIVERY ADDRESS -->
+    <div class="delivery-address">
+      <h3>📍 Delivery Address</h3>
+      <div id="address-display">
+        <p id="customer-name-display"></p>
+        <p id="customer-phone-display"></p>
+        <p id="customer-address-display"></p>
+      </div>
+      <a href="profile.html" class="edit-address-link">✏️ Edit Address</a>
+    </div>
+
     <div class="cart-total">
       <h3>Total: <span id="cart-total">₹0</span></h3>
     </div>
+
     <div class="delivery-options">
       <h3>🚚 Delivery Option</h3>
       <label>
@@ -39,6 +52,7 @@
         🚚 Home Delivery (Extra charges apply)
       </label>
     </div>
+
     <button class="auth-btn" onclick="placeOrder()">✅ Place Order</button>
     <button class="cancel-btn" onclick="clearCart()">🗑️ Clear Cart</button>
   </div>
@@ -79,6 +93,7 @@ const dbClient = window.supabase.createClient(
 
 var currentUser = null;
 var cartData = [];
+var userData = null;
 
 async function loadCart() {
   const { data: { user } } = await dbClient.auth.getUser();
@@ -90,6 +105,21 @@ async function loadCart() {
 
   currentUser = user;
 
+  // LOAD USER DETAILS
+  const { data: uData } = await dbClient
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if(uData) {
+    userData = uData;
+    document.getElementById('customer-name-display').textContent = '👤 ' + uData.name;
+    document.getElementById('customer-phone-display').textContent = '📱 ' + uData.phone;
+    document.getElementById('customer-address-display').textContent = '📍 ' + uData.address;
+  }
+
+  // LOAD CART ITEMS
   const { data, error } = await dbClient
     .from('cart')
     .select('*')
@@ -192,7 +222,7 @@ async function placeOrder() {
     return;
   }
 
-  // SEND EMAIL TO ADMIN
+  // SEND EMAIL TO ADMIN WITH ADDRESS
   await fetch('https://formspree.io/f/xaqdzoqb', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -204,10 +234,14 @@ async function placeOrder() {
 Items: ${orderItems}
 Total: ₹${total}
 Delivery: ${delivery}
-Customer ID: ${currentUser.id}
-Time: ${new Date().toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━
-Please check Supabase for full details!
+👤 Customer Details:
+Name: ${userData ? userData.name : 'N/A'}
+Phone: ${userData ? userData.phone : 'N/A'}
+Address: ${userData ? userData.address : 'N/A'}
+Email: ${userData ? userData.email : 'N/A'}
+━━━━━━━━━━━━━━━━━━━━
+Time: ${new Date().toLocaleString('en-IN')}
       `
     })
   });

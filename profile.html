@@ -33,8 +33,24 @@
           <span id="profile-phone" class="profile-value">-</span>
         </div>
         <div class="profile-item">
-          <span class="profile-label">📍 Address</span>
-          <span id="profile-address" class="profile-value">-</span>
+          <span class="profile-label">🏠 House / Flat No</span>
+          <span id="profile-house" class="profile-value">-</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">🛣️ Street / Area</span>
+          <span id="profile-street" class="profile-value">-</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">🏙️ City</span>
+          <span id="profile-city" class="profile-value">-</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">📍 State</span>
+          <span id="profile-state" class="profile-value">-</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">📮 Pincode</span>
+          <span id="profile-pincode" class="profile-value">-</span>
         </div>
       </div>
       <button class="edit-btn" onclick="showEditMode()">✏️ Edit Profile</button>
@@ -43,9 +59,13 @@
 
     <!-- EDIT MODE -->
     <div id="edit-mode" style="display:none">
-      <input type="text" id="edit-name" placeholder="Your Full Name"/><br/>
-      <input type="tel" id="edit-phone" placeholder="Your Phone Number"/><br/>
-      <input type="text" id="edit-address" placeholder="Your Address"/><br/>
+      <input type="text" id="edit-name"    placeholder="Your Full Name"/><br/>
+      <input type="tel"  id="edit-phone"   placeholder="Your Phone Number"/><br/>
+      <input type="text" id="edit-house"   placeholder="House / Flat No"/><br/>
+      <input type="text" id="edit-street"  placeholder="Street / Area"/><br/>
+      <input type="text" id="edit-city"    placeholder="City"/><br/>
+      <input type="text" id="edit-state"   placeholder="State"/><br/>
+      <input type="text" id="edit-pincode" placeholder="Pincode" maxlength="6"/><br/>
       <button class="auth-btn" onclick="saveProfile()">💾 Save Changes</button>
       <button class="cancel-btn" onclick="hideEditMode()">✕ Cancel</button>
       <p id="edit-msg" class="auth-msg"></p>
@@ -64,6 +84,26 @@ const dbClient = window.supabase.createClient(
 
 var currentUserId = null;
 
+// Helper: parse a stored address string back into parts
+// Format saved: "house, street, city, state - pincode"
+function parseAddress(address) {
+  var result = { house: '', street: '', city: '', state: '', pincode: '' };
+  if (!address) return result;
+
+  // Split off pincode first (after " - ")
+  var parts = address.split(' - ');
+  if (parts.length === 2) result.pincode = parts[1].trim();
+
+  // Remaining: "house, street, city, state"
+  var main = parts[0].split(',');
+  if (main[0] !== undefined) result.house  = main[0].trim();
+  if (main[1] !== undefined) result.street = main[1].trim();
+  if (main[2] !== undefined) result.city   = main[2].trim();
+  if (main[3] !== undefined) result.state  = main[3].trim();
+
+  return result;
+}
+
 async function loadProfile() {
   const { data: { user } } = await dbClient.auth.getUser();
 
@@ -81,15 +121,26 @@ async function loadProfile() {
     .single();
 
   if(data) {
-    document.getElementById('profile-name').textContent = data.name;
-    document.getElementById('profile-email').textContent = data.email;
-    document.getElementById('profile-phone').textContent = data.phone;
-    document.getElementById('profile-address').textContent = data.address;
+    var addr = parseAddress(data.address);
 
-    // PRE FILL EDIT FORM
-    document.getElementById('edit-name').value = data.name;
-    document.getElementById('edit-phone').value = data.phone;
-    document.getElementById('edit-address').value = data.address;
+    // VIEW MODE
+    document.getElementById('profile-name').textContent    = data.name;
+    document.getElementById('profile-email').textContent   = data.email;
+    document.getElementById('profile-phone').textContent   = data.phone;
+    document.getElementById('profile-house').textContent   = addr.house   || '-';
+    document.getElementById('profile-street').textContent  = addr.street  || '-';
+    document.getElementById('profile-city').textContent    = addr.city    || '-';
+    document.getElementById('profile-state').textContent   = addr.state   || '-';
+    document.getElementById('profile-pincode').textContent = addr.pincode || '-';
+
+    // PRE-FILL EDIT FORM
+    document.getElementById('edit-name').value    = data.name;
+    document.getElementById('edit-phone').value   = data.phone;
+    document.getElementById('edit-house').value   = addr.house;
+    document.getElementById('edit-street').value  = addr.street;
+    document.getElementById('edit-city').value    = addr.city;
+    document.getElementById('edit-state').value   = addr.state;
+    document.getElementById('edit-pincode').value = addr.pincode;
   }
 }
 
@@ -104,16 +155,22 @@ function hideEditMode() {
 }
 
 async function saveProfile() {
-  var name = document.getElementById('edit-name').value;
-  var phone = document.getElementById('edit-phone').value;
-  var address = document.getElementById('edit-address').value;
-  var msg = document.getElementById('edit-msg');
+  var name    = document.getElementById('edit-name').value.trim();
+  var phone   = document.getElementById('edit-phone').value.trim();
+  var house   = document.getElementById('edit-house').value.trim();
+  var street  = document.getElementById('edit-street').value.trim();
+  var city    = document.getElementById('edit-city').value.trim();
+  var state   = document.getElementById('edit-state').value.trim();
+  var pincode = document.getElementById('edit-pincode').value.trim();
+  var msg     = document.getElementById('edit-msg');
 
-  if(!name || !phone || !address) {
+  if(!name || !phone || !house || !street || !city || !state || !pincode) {
     msg.style.color = 'red';
     msg.textContent = 'Please fill all fields!';
     return;
   }
+
+  var address = house + ', ' + street + ', ' + city + ', ' + state + ' - ' + pincode;
 
   const { error } = await dbClient
     .from('users')
@@ -124,9 +181,15 @@ async function saveProfile() {
     msg.style.color = 'red';
     msg.textContent = 'Error saving! Try again.';
   } else {
-    document.getElementById('profile-name').textContent = name;
-    document.getElementById('profile-phone').textContent = phone;
-    document.getElementById('profile-address').textContent = address;
+    // Update view mode display
+    document.getElementById('profile-name').textContent    = name;
+    document.getElementById('profile-phone').textContent   = phone;
+    document.getElementById('profile-house').textContent   = house;
+    document.getElementById('profile-street').textContent  = street;
+    document.getElementById('profile-city').textContent    = city;
+    document.getElementById('profile-state').textContent   = state;
+    document.getElementById('profile-pincode').textContent = pincode;
+
     msg.style.color = 'green';
     msg.textContent = 'Saved successfully!';
     setTimeout(function() {
