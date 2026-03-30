@@ -18,12 +18,13 @@
 <!-- NAVBAR -->
 <nav>
   <div class="nav-logo">🌾 PureHarvest</div>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <a href="about.html">About</a>
     <a href="login.html" id="login-nav">Login</a>
     <a href="cart.html" id="cart-nav">🛒 Cart <span id="cart-count">0</span></a>
-    <button id="open-btn">Enquiry</button>
+    <button id="open-btn">📩 Enquiry</button>
   </div>
+  <div class="hamburger" id="hamburger">☰</div>
 </nav>
 
 <!-- SLIDING ENQUIRY PANEL -->
@@ -87,6 +88,21 @@ document.addEventListener("DOMContentLoaded", function() {
     'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
   );
 
+  // HAMBURGER MENU
+  var hamburger = document.getElementById('hamburger');
+  var navLinks = document.getElementById('nav-links');
+
+  hamburger.addEventListener('click', function() {
+    navLinks.classList.toggle('open');
+  });
+
+  // CLOSE MENU WHEN LINK CLICKED
+  navLinks.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      navLinks.classList.remove('open');
+    });
+  });
+
   // CHECK LOGIN SESSION
   dbClient.auth.getUser().then(function(response) {
     var user = response.data.user;
@@ -105,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var panel = document.getElementById("enquiry-panel");
 
   openBtn.addEventListener("click", function() {
+    navLinks.classList.remove('open');
     panel.classList.add("open");
     overlay.classList.add("show");
   });
@@ -182,12 +199,8 @@ document.addEventListener("DOMContentLoaded", function() {
       var container = document.getElementById("cards-container");
       container.innerHTML = "";
 
-      // LOAD STOCK FROM SUPABASE
-      const { data: stockData } = await dbClient
-        .from('stock')
-        .select('*');
+      const { data: stockData } = await dbClient.from('stock').select('*');
 
-      // BUILD STOCK MAP
       var stockMap = {};
       if(stockData) {
         stockData.forEach(function(s) {
@@ -203,7 +216,6 @@ document.addEventListener("DOMContentLoaded", function() {
         var statusText = isInStock ? "In Stock" : "Out of Stock";
         var savings = product.marketprice - product.ourprice;
 
-        // STOCK DISPLAY
         var stockDisplay = '';
         if(isInStock) {
           if(stock <= 10) {
@@ -236,7 +248,6 @@ document.addEventListener("DOMContentLoaded", function() {
         container.innerHTML += card;
       });
 
-      // SCROLL ANIMATION
       var cards = document.querySelectorAll('.card');
       var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {

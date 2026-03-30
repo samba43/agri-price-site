@@ -12,10 +12,11 @@
 
 <nav>
   <div class="nav-logo">🌾 PureHarvest</div>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <a href="index.html">Home</a>
-    <button id="open-btn">Enquiry</button>
+    <button id="open-btn">📩 Enquiry</button>
   </div>
+  <div class="hamburger" id="hamburger">☰</div>
 </nav>
 
 <section class="about-section">
@@ -56,8 +57,8 @@
     <p>🌾 PureHarvest — 100% Natural, 0% Chemical</p>
     <div class="social-links">
       <a href="#" target="_blank">📘 Facebook</a>
-      <a href="#" target="_blank">📸 Instagram</a>
-      <a href="https://wa.me/91XXXXXXXXXX" target="_blank">💬 WhatsApp</a>
+      <a href="https://www.instagram.com/samba_21m/" target="_blank">📸 Instagram</a>
+      <a href="https://wa.me/919666365360" target="_blank">💬 WhatsApp</a>
     </div>
     <p class="footer-bottom">© 2025 PureHarvest. All rights reserved.</p>
   </div>
@@ -65,12 +66,26 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+  var hamburger = document.getElementById('hamburger');
+  var navLinks = document.getElementById('nav-links');
+
+  hamburger.addEventListener('click', function() {
+    navLinks.classList.toggle('open');
+  });
+
+  navLinks.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      navLinks.classList.remove('open');
+    });
+  });
+
   var openBtn = document.getElementById("open-btn");
   var closeBtn = document.getElementById("close-btn");
   var overlay = document.getElementById("overlay");
   var panel = document.getElementById("enquiry-panel");
 
   openBtn.addEventListener("click", function() {
+    navLinks.classList.remove('open');
     panel.classList.add("open");
     overlay.classList.add("show");
   });
