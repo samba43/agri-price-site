@@ -32,7 +32,10 @@
       <div id="address-display">
         <p id="customer-name-display"></p>
         <p id="customer-phone-display"></p>
-        <p id="customer-address-display"></p>
+        <p id="customer-house-display"></p>
+        <p id="customer-street-display"></p>
+        <p id="customer-citystate-display"></p>
+        <p id="customer-pincode-display"></p>
       </div>
       <a href="profile.html" class="edit-address-link">✏️ Edit Address</a>
     </div>
@@ -114,9 +117,12 @@ async function loadCart() {
 
   if(uData) {
     userData = uData;
-    document.getElementById('customer-name-display').textContent = '👤 ' + uData.name;
-    document.getElementById('customer-phone-display').textContent = '📱 ' + uData.phone;
-    document.getElementById('customer-address-display').textContent = '📍 ' + uData.address;
+    document.getElementById('customer-name-display').textContent    = '👤 ' + uData.name;
+    document.getElementById('customer-phone-display').textContent   = '📱 ' + uData.phone;
+    document.getElementById('customer-house-display').textContent   = '🏠 ' + (uData.house  || '');
+    document.getElementById('customer-street-display').textContent  = '🛣️ ' + (uData.street || '');
+    document.getElementById('customer-citystate-display').textContent = '🏙️ ' + (uData.city || '') + ', ' + (uData.state || '');
+    document.getElementById('customer-pincode-display').textContent = '📮 ' + (uData.pincode || '');
   }
 
   // LOAD CART ITEMS
@@ -222,7 +228,7 @@ async function placeOrder() {
     return;
   }
 
-  // SEND EMAIL TO ADMIN WITH ADDRESS
+  // SEND EMAIL TO ADMIN WITH FULL ADDRESS
   await fetch('https://formspree.io/f/xaqdzoqb', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -238,8 +244,14 @@ Delivery: ${delivery}
 👤 Customer Details:
 Name: ${userData ? userData.name : 'N/A'}
 Phone: ${userData ? userData.phone : 'N/A'}
-Address: ${userData ? userData.address : 'N/A'}
 Email: ${userData ? userData.email : 'N/A'}
+━━━━━━━━━━━━━━━━━━━━
+📍 Delivery Address:
+House: ${userData ? userData.house : 'N/A'}
+Street: ${userData ? userData.street : 'N/A'}
+City: ${userData ? userData.city : 'N/A'}
+State: ${userData ? userData.state : 'N/A'}
+Pincode: ${userData ? userData.pincode : 'N/A'}
 ━━━━━━━━━━━━━━━━━━━━
 Time: ${new Date().toLocaleString('en-IN')}
       `

@@ -123,9 +123,6 @@
       return;
     }
 
-    // Combine into a structured address string for the DB
-    var address = house + ', ' + street + ', ' + city + ', ' + state + ' - ' + pincode;
-
     const { data, error } = await dbClient.auth.signUp({
       email: email,
       password: password
@@ -144,8 +141,13 @@
         email: email,
         name: name,
         phone: phone,
-        address: address
-      }], { onConflict: 'id' });
+        house: house,
+        street: street,
+        city: city,
+        state: state,
+        pincode: pincode,
+        address: house + ', ' + street + ', ' + city + ', ' + state + ' - ' + pincode
+      }]);
 
     if(dbError) {
       msg.style.color = 'red';
@@ -158,6 +160,7 @@
       }, 1000);
     }
   }
+
 </script>
 
 </body>

@@ -121,37 +121,25 @@ async function loadProfile() {
     .single();
 
   if(data) {
-    var addr = parseAddress(data.address);
-
     // VIEW MODE
     document.getElementById('profile-name').textContent    = data.name;
     document.getElementById('profile-email').textContent   = data.email;
     document.getElementById('profile-phone').textContent   = data.phone;
-    document.getElementById('profile-house').textContent   = addr.house   || '-';
-    document.getElementById('profile-street').textContent  = addr.street  || '-';
-    document.getElementById('profile-city').textContent    = addr.city    || '-';
-    document.getElementById('profile-state').textContent   = addr.state   || '-';
-    document.getElementById('profile-pincode').textContent = addr.pincode || '-';
+    document.getElementById('profile-house').textContent   = data.house   || '-';
+    document.getElementById('profile-street').textContent  = data.street  || '-';
+    document.getElementById('profile-city').textContent    = data.city    || '-';
+    document.getElementById('profile-state').textContent   = data.state   || '-';
+    document.getElementById('profile-pincode').textContent = data.pincode || '-';
 
     // PRE-FILL EDIT FORM
     document.getElementById('edit-name').value    = data.name;
     document.getElementById('edit-phone').value   = data.phone;
-    document.getElementById('edit-house').value   = addr.house;
-    document.getElementById('edit-street').value  = addr.street;
-    document.getElementById('edit-city').value    = addr.city;
-    document.getElementById('edit-state').value   = addr.state;
-    document.getElementById('edit-pincode').value = addr.pincode;
+    document.getElementById('edit-house').value   = data.house   || '';
+    document.getElementById('edit-street').value  = data.street  || '';
+    document.getElementById('edit-city').value    = data.city    || '';
+    document.getElementById('edit-state').value   = data.state   || '';
+    document.getElementById('edit-pincode').value = data.pincode || '';
   }
-}
-
-function showEditMode() {
-  document.getElementById('view-mode').style.display = 'none';
-  document.getElementById('edit-mode').style.display = 'block';
-}
-
-function hideEditMode() {
-  document.getElementById('edit-mode').style.display = 'none';
-  document.getElementById('view-mode').style.display = 'block';
 }
 
 async function saveProfile() {
@@ -174,14 +162,22 @@ async function saveProfile() {
 
   const { error } = await dbClient
     .from('users')
-    .update({ name: name, phone: phone, address: address })
+    .update({ 
+      name: name, 
+      phone: phone, 
+      house: house,
+      street: street,
+      city: city,
+      state: state,
+      pincode: pincode,
+      address: address
+    })
     .eq('id', currentUserId);
 
   if(error) {
     msg.style.color = 'red';
     msg.textContent = 'Error saving! Try again.';
   } else {
-    // Update view mode display
     document.getElementById('profile-name').textContent    = name;
     document.getElementById('profile-phone').textContent   = phone;
     document.getElementById('profile-house').textContent   = house;
