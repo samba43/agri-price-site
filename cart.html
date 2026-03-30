@@ -117,12 +117,12 @@ async function loadCart() {
 
   if(uData) {
     userData = uData;
-    document.getElementById('customer-name-display').textContent    = '👤 ' + uData.name;
-    document.getElementById('customer-phone-display').textContent   = '📱 ' + uData.phone;
-    document.getElementById('customer-house-display').textContent   = '🏠 ' + (uData.house  || '');
-    document.getElementById('customer-street-display').textContent  = '🛣️ ' + (uData.street || '');
-    document.getElementById('customer-citystate-display').textContent = '🏙️ ' + (uData.city || '') + ', ' + (uData.state || '');
-    document.getElementById('customer-pincode-display').textContent = '📮 ' + (uData.pincode || '');
+    document.getElementById('customer-name-display').textContent      = '👤 ' + uData.name;
+    document.getElementById('customer-phone-display').textContent     = '📱 ' + uData.phone;
+    document.getElementById('customer-house-display').textContent     = '🏠 ' + (uData.house   || '');
+    document.getElementById('customer-street-display').textContent    = '🛣️ ' + (uData.street  || '');
+    document.getElementById('customer-citystate-display').textContent = '🏙️ ' + (uData.city    || '') + ', ' + (uData.state || '');
+    document.getElementById('customer-pincode-display').textContent   = '📮 ' + (uData.pincode || '');
   }
 
   // LOAD CART ITEMS
@@ -226,6 +226,32 @@ async function placeOrder() {
   if(error) {
     alert('Error placing order! Try again.');
     return;
+  }
+
+  // REDUCE STOCK FOR EACH ITEM IN CART
+  for(var i = 0; i < cartData.length; i++) {
+    var item = cartData[i];
+
+    // GET CURRENT STOCK
+    const { data: stockData } = await dbClient
+      .from('stock')
+      .select('stock_count')
+      .eq('product_name', item.product_name)
+      .single();
+
+    if(stockData) {
+      var newStock = stockData.stock_count - item.quantity;
+      if(newStock < 0) newStock = 0;
+
+      // UPDATE STOCK
+      await dbClient
+        .from('stock')
+        .update({ 
+          stock_count: newStock,
+          updated_at: new Date().toISOString()
+        })
+        .eq('product_name', item.product_name);
+    }
   }
 
   // SEND EMAIL TO ADMIN WITH FULL ADDRESS

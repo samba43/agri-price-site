@@ -82,13 +82,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-  // SUPABASE CLIENT
   const dbClient = window.supabase.createClient(
     'https://fiyumrqncvgwuczalgqc.supabase.co',
     'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
   );
 
-  // CHECK LOGIN SESSION & SHOW PROFILE ICON
+  // CHECK LOGIN SESSION
   dbClient.auth.getUser().then(function(response) {
     var user = response.data.user;
     if(user) {
@@ -174,27 +173,43 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // LOAD PRODUCTS FROM GOOGLE SHEETS
+  // LOAD PRODUCTS FROM GOOGLE SHEETS + STOCK FROM SUPABASE
   var sheetURL = "https://script.google.com/macros/s/AKfycbzHBzO0nMVPpCuikqS2i70b1A1sawRQMXajTx28LAZhlG2bP2OHNTs3i6qd_iNMoTD-/exec";
 
   fetch(sheetURL)
     .then(function(response) { return response.json(); })
-    .then(function(products) {
+    .then(async function(products) {
       var container = document.getElementById("cards-container");
       container.innerHTML = "";
 
+      // LOAD STOCK FROM SUPABASE
+      const { data: stockData } = await dbClient
+        .from('stock')
+        .select('*');
+
+      // BUILD STOCK MAP
+      var stockMap = {};
+      if(stockData) {
+        stockData.forEach(function(s) {
+          stockMap[s.product_name] = s.stock_count;
+        });
+      }
+
       products.forEach(function(product) {
-        var statusClass = product.status === "In Stock" ? "instock" : "outstock";
-        var statusIcon = product.status === "In Stock" ? "✅" : "❌";
+        var stock = stockMap[product.name] !== undefined ? stockMap[product.name] : 0;
+        var isInStock = stock > 0;
+        var statusClass = isInStock ? "instock" : "outstock";
+        var statusIcon = isInStock ? "✅" : "❌";
+        var statusText = isInStock ? "In Stock" : "Out of Stock";
         var savings = product.marketprice - product.ourprice;
 
         // STOCK DISPLAY
         var stockDisplay = '';
-        if(product.status === "In Stock") {
-          if(product.stock <= 10) {
-            stockDisplay = `<p class="stock-low">🔥 Only ${product.stock} ${product.unit} left!</p>`;
+        if(isInStock) {
+          if(stock <= 10) {
+            stockDisplay = `<p class="stock-low">🔥 Only ${stock} ${product.unit} left!</p>`;
           } else {
-            stockDisplay = `<p class="stock-ok">📦 ${product.stock} ${product.unit} available</p>`;
+            stockDisplay = `<p class="stock-ok">📦 ${stock} ${product.unit} available</p>`;
           }
         }
 
@@ -205,12 +220,12 @@ document.addEventListener("DOMContentLoaded", function() {
             <p>Our Price: <span class="our-price">₹${product.ourprice}/${product.unit}</span></p>
             <p>Market Price: <span class="market-price">₹${product.marketprice}/${product.unit}</span></p>
             <p>You Save: <span class="save">₹${savings}</span></p>
-            <p class="${statusClass}">${statusIcon} ${product.status}</p>
+            <p class="${statusClass}">${statusIcon} ${statusText}</p>
             ${stockDisplay}
-            ${product.status === "In Stock" ? `
+            ${isInStock ? `
             <div class="quantity-control">
               <button onclick="changeQty(this, -1)">-</button>
-              <input type="number" value="1" min="1" max="${product.stock}" class="qty-input"/>
+              <input type="number" value="1" min="1" max="${stock}" class="qty-input"/>
               <button onclick="changeQty(this, 1)">+</button>
             </div>
             <button class="add-cart-btn" onclick="addToCart('${product.name}', ${product.ourprice}, '${product.unit}', this)">
