@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // LOAD PRODUCTS FROM GOOGLE SHEETS
-  var sheetURL = "https://script.google.com/macros/s/AKfycbwOL_aKA-urBxPlfyCmCLknY4aXdbzAFIiBgMWR1Xp77poYA3EjyvyI_kt01glQwk71/exec";
+  var sheetURL = "https://script.google.com/macros/s/AKfycbzHBzO0nMVPpCuikqS2i70b1A1sawRQMXajTx28LAZhlG2bP2OHNTs3i6qd_iNMoTD-/exec";
 
   fetch(sheetURL)
     .then(function(response) { return response.json(); })
@@ -188,14 +188,25 @@ document.addEventListener("DOMContentLoaded", function() {
         var statusIcon = product.status === "In Stock" ? "✅" : "❌";
         var savings = product.marketprice - product.ourprice;
 
+        // STOCK DISPLAY
+        var stockDisplay = '';
+        if(product.status === "In Stock") {
+          if(product.stock <= 10) {
+            stockDisplay = `<p class="stock-low">🔥 Only ${product.stock} ${product.unit} left!</p>`;
+          } else {
+            stockDisplay = `<p class="stock-ok">📦 ${product.stock} ${product.unit} available</p>`;
+          }
+        }
+
         var card = `
           <div class="card">
             <img src="${product.image}" alt="${product.name}"/>
             <h3>${product.name}</h3>
-            <p>Our Price: <span class="our-price">₹${product.ourprice}/kg</span></p>
-            <p>Market Price: <span class="market-price">₹${product.marketprice}/kg</span></p>
+            <p>Our Price: <span class="our-price">₹${product.ourprice}/${product.unit}</span></p>
+            <p>Market Price: <span class="market-price">₹${product.marketprice}/${product.unit}</span></p>
             <p>You Save: <span class="save">₹${savings}</span></p>
             <p class="${statusClass}">${statusIcon} ${product.status}</p>
+            ${stockDisplay}
             ${product.status === "In Stock" ? `
             <div class="quantity-control">
               <button onclick="changeQty(this, -1)">-</button>

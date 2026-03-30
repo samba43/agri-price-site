@@ -869,3 +869,24 @@ footer {
 .edit-address-link:hover {
   text-decoration: underline;
 }
+/* STOCK COUNT */
+.stock-ok {
+  color: #2d6a2d;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.stock-low {
+  color: #e53935;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 4px 0;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
