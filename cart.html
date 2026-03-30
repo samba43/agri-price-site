@@ -56,20 +56,7 @@
       </label>
     </div>
 
-    <!-- PAYMENT METHOD SELECTION -->
-    <div class="payment-options" style="margin: 16px 0;">
-      <h3>💳 Payment Method</h3>
-      <label>
-        <input type="radio" name="payment" value="cod" checked/>
-        💵 Cash on Delivery
-      </label><br/>
-      <label>
-        <input type="radio" name="payment" value="online"/>
-        📱 Pay Online (UPI / Card / Net Banking)
-      </label>
-    </div>
-
-    <button class="auth-btn" onclick="placeOrder()">✅ Place Order</button>
+    <button class="auth-btn" onclick="placeOrder()">💳 Pay & Place Order</button>
     <button class="cancel-btn" onclick="clearCart()">🗑️ Clear Cart</button>
   </div>
 </section>
@@ -79,7 +66,7 @@
   <div id="success-box">
     <div id="success-icon">✅</div>
     <h2>Order Placed!</h2>
-    <p id="success-message">Thank you for your order! 🌾</p>
+    <p id="success-message">💳 Payment successful! Your order is confirmed. 🌾</p>
     <p>We will contact you soon.</p>
     <button class="auth-btn" onclick="window.location.href='index.html'">
       🏠 Go Home
@@ -217,26 +204,15 @@ async function clearCart() {
   document.getElementById('cart-summary').style.display = 'none';
 }
 
-// ── PLACE ORDER ──────────────────────────────
-async function placeOrder() {
-  var paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-
-  if (paymentMethod === 'online') {
-    startRazorpayPayment();
-  } else {
-    await finalizeOrder('COD', null);
-  }
-}
-
-// ── RAZORPAY ─────────────────────────────────
-function startRazorpayPayment() {
+// ── PLACE ORDER → opens Razorpay directly ────
+function placeOrder() {
   var total = cartData.reduce(function(sum, item) {
     return sum + (item.price * item.quantity);
   }, 0);
 
   var options = {
     key: 'rzp_test_SXQmcRqKUBfSWd',
-    amount: total * 100,          // paise
+    amount: total * 100,        // paise
     currency: 'INR',
     name: 'PureHarvest',
     description: 'Fresh Farm Products',
@@ -252,22 +228,24 @@ function startRazorpayPayment() {
     },
     theme: { color: '#4CAF50' },
 
+    // ✅ PAYMENT SUCCESS
     handler: async function(response) {
-      await finalizeOrder('Online', response.razorpay_payment_id);
+      await finalizeOrder(response.razorpay_payment_id);
     }
   };
 
   var rzp = new Razorpay(options);
 
+  // ❌ PAYMENT FAILED
   rzp.on('payment.failed', function(response) {
-    alert('❌ Payment failed: ' + response.error.description + '\nPlease try again or choose Cash on Delivery.');
+    alert('❌ Payment failed: ' + response.error.description + '\nPlease try again.');
   });
 
   rzp.open();
 }
 
-// ── FINALIZE ORDER ───────────────────────────
-async function finalizeOrder(paymentMode, razorpayPaymentId) {
+// ── FINALIZE ORDER (only called on success) ──
+async function finalizeOrder(razorpayPaymentId) {
   var delivery = document.querySelector('input[name="delivery"]:checked').value;
   var total = cartData.reduce(function(sum, item) {
     return sum + (item.price * item.quantity);
@@ -277,24 +255,19 @@ async function finalizeOrder(paymentMode, razorpayPaymentId) {
     return item.product_name + ' x' + item.quantity + item.unit;
   }).join(', ');
 
-  var orderRecord = {
+  const { error } = await dbClient.from('orders').insert({
     user_id:       currentUser.id,
     product_name:  orderItems,
     quantity:      cartData.length + ' items',
     total_price:   total,
     status:        'Pending',
     delivery_type: delivery,
-    payment_mode:  paymentMode
-  };
-
-  if (razorpayPaymentId) {
-    orderRecord.payment_id = razorpayPaymentId;
-  }
-
-  const { error } = await dbClient.from('orders').insert(orderRecord);
+    payment_mode:  'Online',
+    payment_id:    razorpayPaymentId
+  });
 
   if(error) {
-    alert('Error saving order! Please contact support.\n' + error.message);
+    alert('Order save failed! Contact support.\n' + error.message);
     return;
   }
 
@@ -334,7 +307,8 @@ async function finalizeOrder(paymentMode, razorpayPaymentId) {
 Items: ${orderItems}
 Total: ₹${total}
 Delivery: ${delivery}
-Payment: ${paymentMode}${razorpayPaymentId ? '\nPayment ID: ' + razorpayPaymentId : ''}
+Payment: Online
+Payment ID: ${razorpayPaymentId}
 ━━━━━━━━━━━━━━━━━━━━
 👤 Customer Details:
 Name: ${userData ? userData.name : 'N/A'}
@@ -358,12 +332,6 @@ Time: ${new Date().toLocaleString('en-IN')}
   cartData = [];
   document.getElementById('cart-summary').style.display = 'none';
   document.getElementById('cart-items').innerHTML = '';
-
-  if (paymentMode === 'Online') {
-    document.getElementById('success-message').textContent = '💳 Payment successful! Your order is confirmed. 🌾';
-  } else {
-    document.getElementById('success-message').textContent = 'Thank you for your order! 🌾';
-  }
 
   showSuccessAnimation();
 }
