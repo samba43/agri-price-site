@@ -148,6 +148,24 @@ async function saveProfile() {
     return;
   }
 
+  if(name.length < 2) {
+    msg.style.color = 'red';
+    msg.textContent = 'Name must be at least 2 characters.';
+    return;
+  }
+
+  if(!/^[6-9][0-9]{9}$/.test(phone)) {
+    msg.style.color = 'red';
+    msg.textContent = 'Please enter a valid 10 digit Indian mobile number.';
+    return;
+  }
+
+  if(!/^[0-9]{6}$/.test(pincode)) {
+    msg.style.color = 'red';
+    msg.textContent = 'Please enter a valid 6 digit pincode.';
+    return;
+  }
+
   var address = house + ', ' + street + ', ' + city + ', ' + state + ' - ' + pincode;
 
   const { error } = await dbClient

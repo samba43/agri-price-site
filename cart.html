@@ -206,17 +206,38 @@ async function clearCart() {
 }
 
 // ── PLACE ORDER → opens Razorpay directly ────
-function placeOrder() {
-  var total = cartData.reduce(function(sum, item) {
-    return sum + (item.price * item.quantity);
-  }, 0);
+async function placeOrder() {
+  var delivery = document.querySelector('input[name="delivery"]:checked').value;
+
+  const { data: sessionData } = await dbClient.auth.getSession();
+
+  if(!sessionData.session) {
+    alert('Please login again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const { data: orderData, error: orderError } = await dbClient.functions.invoke(
+    'create-razorpay-order',
+    {
+      headers: {
+        Authorization: 'Bearer ' + sessionData.session.access_token
+      }
+    }
+  );
+
+  if(orderError || !orderData) {
+    alert('Unable to start payment. Please try again.');
+    return;
+  }
 
   var options = {
-    key: 'rzp_test_SXQmcRqKUBfSWd',
-    amount: total * 100,        // paise
-    currency: 'INR',
+    key: orderData.razorpay_key_id,
+    amount: orderData.amount,
+    currency: orderData.currency,
     name: 'PureHarvest',
     description: 'Fresh Farm Products',
+    order_id: orderData.razorpay_order_id,
     prefill: {
       name:    userData ? userData.name  : '',
       email:   userData ? userData.email : '',
@@ -229,107 +250,49 @@ function placeOrder() {
     },
     theme: { color: '#4CAF50' },
 
-    // ✅ PAYMENT SUCCESS
     handler: async function(response) {
-      await finalizeOrder(response.razorpay_payment_id);
+      await finalizeOrder(response, delivery);
     }
   };
 
   var rzp = new Razorpay(options);
 
-  // ❌ PAYMENT FAILED
   rzp.on('payment.failed', function(response) {
-    alert('❌ Payment failed: ' + response.error.description + '\nPlease try again.');
+    alert('Payment failed: ' + response.error.description + '\nPlease try again.');
   });
 
   rzp.open();
 }
+// FINALIZE ORDER - backend verifies Razorpay payment before creating order
+async function finalizeOrder(paymentResponse, delivery) {
+  const { data: sessionData } = await dbClient.auth.getSession();
 
-// ── FINALIZE ORDER (only called on success) ──
-async function finalizeOrder(razorpayPaymentId) {
-  var delivery = document.querySelector('input[name="delivery"]:checked').value;
-  var total = cartData.reduce(function(sum, item) {
-    return sum + (item.price * item.quantity);
-  }, 0);
-
-  var orderItems = cartData.map(function(item) {
-    return item.product_name + ' x' + item.quantity + item.unit;
-  }).join(', ');
-
-  const { error } = await dbClient.from('orders').insert({
-    user_id:       currentUser.id,
-    product_name:  orderItems,
-    quantity:      cartData.length + ' items',
-    total_price:   total,
-    status:        'Pending',
-    delivery_type: delivery,
-    payment_mode:  'Online',
-    payment_id:    razorpayPaymentId
-  });
-
-  if(error) {
-    alert('Order save failed! Contact support.\n' + error.message);
+  if(!sessionData.session) {
+    alert('Please login again.');
+    window.location.href = 'login.html';
     return;
   }
 
-  // REDUCE STOCK
-  for(var i = 0; i < cartData.length; i++) {
-    var item = cartData[i];
-
-    const { data: stockData } = await dbClient
-      .from('stock')
-      .select('stock_count')
-      .eq('product_name', item.product_name)
-      .single();
-
-    if(stockData) {
-      var newStock = stockData.stock_count - item.quantity;
-      if(newStock < 0) newStock = 0;
-
-      await dbClient
-        .from('stock')
-        .update({
-          stock_count: newStock,
-          updated_at: new Date().toISOString()
-        })
-        .eq('product_name', item.product_name);
+  const { data, error } = await dbClient.functions.invoke(
+    'verify-razorpay-payment',
+    {
+      body: {
+        razorpay_order_id: paymentResponse.razorpay_order_id,
+        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_signature: paymentResponse.razorpay_signature,
+        delivery_type: delivery
+      },
+      headers: {
+        Authorization: 'Bearer ' + sessionData.session.access_token
+      }
     }
+  );
+
+  if(error || !data || !data.success) {
+    alert('Payment verification failed. If money was deducted, contact support.');
+    return;
   }
 
-  // EMAIL ADMIN
-  await fetch('https://formspree.io/f/xaqdzoqb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: 'PureHarvest Order System',
-      message: `
-🛒 NEW ORDER RECEIVED!
-━━━━━━━━━━━━━━━━━━━━
-Items: ${orderItems}
-Total: ₹${total}
-Delivery: ${delivery}
-Payment: Online
-Payment ID: ${razorpayPaymentId}
-━━━━━━━━━━━━━━━━━━━━
-👤 Customer Details:
-Name: ${userData ? userData.name : 'N/A'}
-Phone: ${userData ? userData.phone : 'N/A'}
-Email: ${userData ? userData.email : 'N/A'}
-━━━━━━━━━━━━━━━━━━━━
-📍 Delivery Address:
-House: ${userData ? userData.house : 'N/A'}
-Street: ${userData ? userData.street : 'N/A'}
-City: ${userData ? userData.city : 'N/A'}
-State: ${userData ? userData.state : 'N/A'}
-Pincode: ${userData ? userData.pincode : 'N/A'}
-━━━━━━━━━━━━━━━━━━━━
-Time: ${new Date().toLocaleString('en-IN')}
-      `
-    })
-  });
-
-  // CLEAR CART
-  await dbClient.from('cart').delete().eq('user_id', currentUser.id);
   cartData = [];
   document.getElementById('cart-summary').style.display = 'none';
   document.getElementById('cart-items').innerHTML = '';

@@ -154,23 +154,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var qty = parseFloat(btn.parentElement.querySelector('.qty-input').value);
 
+    if(!Number.isFinite(qty) || qty <= 0) {
+      alert('Please enter a valid quantity.');
+      return;
+    }
+
     const { error } = await dbClient
       .from('cart')
       .insert({
         user_id: user.id,
         product_name: name,
-        price: price,
-        quantity: qty,
-        unit: unit || 'kg'
+        quantity: qty
       });
 
     if(error) {
-      alert('Error adding to cart!');
+      alert('Error adding to cart: ' + error.message);
     } else {
-      btn.textContent = '✅ Added!';
+      btn.textContent = '? Added!';
       btn.style.background = '#388e3c';
       setTimeout(function() {
-        btn.textContent = '🛒 Add to Cart';
+        btn.textContent = '?? Add to Cart';
         btn.style.background = '';
       }, 1500);
       updateCartCount();
