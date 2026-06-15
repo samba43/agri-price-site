@@ -1459,7 +1459,23 @@ footer::before {
     padding: 15px;
   }
 
-  #success-box {
-    padding: 35px 25px;
+ #success-box {
+  animation: orderCelebration 0.8s cubic-bezier(.17,.89,.32,1.49);
+}
+
+@keyframes orderCelebration {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }

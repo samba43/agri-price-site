@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Orders - PureHarvest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">🌾 PureHarvest</div>
+
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="my-orders.html" id="cart-nav">📦 My Orders</a>
+    <a href="profile.html">👤 Profile</a>
+    <button class="auth-btn-small" onclick="logoutUser()">Logout</button>
+  </div>
+</nav>
+
+<!-- ORDERS SECTION -->
+<section class="profile-section">
+
+  <div class="profile-box" style="max-width:900px;">
+
+    <h2>📦 My Orders</h2>
+
+    <div style="display:flex;gap:10px;margin-bottom:20px;justify-content:center;flex-wrap:wrap;">
+
+      <button
+        id="active-btn"
+        class="auth-btn"
+        onclick="showActiveOrders()">
+        Active Orders
+      </button>
+
+      <button
+        id="history-btn"
+        class="edit-btn"
+        onclick="showDeliveredOrders()">
+        Order History
+      </button>
+
+    </div>
+
+    <div id="orders-container">
+      Loading orders...
+    </div>
+
+  </div>
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+const dbClient = window.supabase.createClient(
+  'https://fiyumrqncvgwuczalgqc.supabase.co',
+  'sb_publishable_XPNEWHWhX_tEMPKvGr63Qw_Ekm92Doz'
+);
+let allOrders = [];
+
+async function loadOrders() {
+
+  const { data: { user } } = await dbClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const { data, error } = await dbClient
+    .from('orders')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    document.getElementById('orders-container').innerHTML =
+      '<p>Unable to load orders.</p>';
+    return;
+  }
+
+  allOrders = data || [];
+
+  showActiveOrders();
+}
+
+function showActiveOrders() {
+
+  document.getElementById('active-btn').className = 'auth-btn';
+  document.getElementById('history-btn').className = 'edit-btn';
+
+  const active = allOrders.filter(order =>
+    order.order_status === 'Pending' ||
+    order.order_status === 'Confirmed' ||
+    order.order_status === 'Preparing' ||
+    order.order_status === 'Out for Delivery'
+  );
+
+  renderOrders(active);
+}
+
+function showDeliveredOrders() {
+
+  document.getElementById('history-btn').className = 'auth-btn';
+  document.getElementById('active-btn').className = 'edit-btn';
+
+  const delivered = allOrders.filter(order =>
+    order.order_status === 'Delivered'
+  );
+
+  renderOrders(delivered);
+}
+
+function getStatus(status) {
+
+  if (status === 'Pending') {
+    return '🟡 Pending';
+  }
+
+  if (status === 'Confirmed') {
+    return '🔵 Confirmed';
+  }
+
+  if (status === 'Preparing') {
+    return '🟠 Preparing';
+  }
+
+  if (status === 'Out for Delivery') {
+    return '🟢 Out for Delivery';
+  }
+
+  if (status === 'Delivered') {
+    return '✅ Delivered';
+  }
+
+  return status;
+}
+
+function renderOrders(orders) {
+
+  const container = document.getElementById('orders-container');
+
+  if (!orders.length) {
+    container.innerHTML = `
+      <div class="profile-details">
+        <p>No orders found.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+
+  orders.forEach(order => {
+
+    const date = new Date(order.created_at).toLocaleDateString();
+
+    container.innerHTML += `
+
+      <div class="profile-details" style="margin-bottom:15px;">
+
+        <div class="profile-item">
+          <span class="profile-label">Status</span>
+          <span class="profile-value">${getStatus(order.order_status)}</span>
+        </div>
+
+        <div class="profile-item">
+          <span class="profile-label">Product</span>
+          <span class="profile-value">${order.product_name}</span>
+        </div>
+
+        <div class="profile-item">
+          <span class="profile-label">Quantity</span>
+          <span class="profile-value">${order.quantity}</span>
+        </div>
+
+        <div class="profile-item">
+          <span class="profile-label">Total</span>
+          <span class="profile-value">₹${order.total_price}</span>
+        </div>
+
+        <div class="profile-item">
+          <span class="profile-label">Delivery Type</span>
+          <span class="profile-value">${order.delivery_type}</span>
+        </div>
+
+        <div class="profile-item">
+          <span class="profile-label">Date</span>
+          <span class="profile-value">${date}</span>
+        </div>
+
+      </div>
+
+    `;
+  });
+}
+
+async function logoutUser() {
+  await dbClient.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
