@@ -110,7 +110,11 @@ async function loadProfile() {
     .from('users')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
+  
+  if (error) {
+  console.error('Profile load error:', error);
+}
 
   if(data) {
     document.getElementById('profile-name').textContent    = data.name;
