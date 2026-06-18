@@ -223,7 +223,9 @@ console.log("Error:", response.error);
 
     products.forEach(function(product) {
 
-      var stock = product.stock_count || 0;
+  console.log("Rendering:", product.product_name);
+
+  var stock = product.stock_count || 0;
 
       var isInStock = stock > 0;
 
