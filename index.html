@@ -261,8 +261,42 @@ console.log("Error:", response.error);
       }
 
       var card = `
-<div style="border:1px solid black;padding:10px;margin:10px;">
+<div class="card">
+
+  <img
+    src="${product.image_url}"
+    alt="${product.product_name}"
+  />
+
   <h3>${product.product_name}</h3>
+
+  <p>${product.description || ""}</p>
+
+  <p>
+    Our Price:
+    <span class="our-price">
+      ₹${product.price}/${product.unit}
+    </span>
+  </p>
+
+  <p>
+    Market Price:
+    <span class="market-price">
+      ₹${product.market_price}/${product.unit}
+    </span>
+  </p>
+
+  <p>
+    You Save:
+    <span class="save">
+      ₹${savings}
+    </span>
+  </p>
+
+  <p class="${statusClass}">
+    ${statusIcon} ${statusText}
+  </p>
+
 </div>
 `;
 
