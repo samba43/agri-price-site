@@ -204,6 +204,8 @@ dbClient
 
   .then(function(response) {
 
+    console.log("SUPABASE RESPONSE:", response);
+
     const products = response.data;
 
     if(!products){
