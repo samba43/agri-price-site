@@ -207,6 +207,8 @@ dbClient
     console.log("SUPABASE RESPONSE:", response);
 
     const products = response.data;
+    console.log("Products:", products);
+console.log("Error:", response.error);
 
     if(!products){
       document.getElementById("cards-container").innerHTML =
