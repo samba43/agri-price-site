@@ -246,6 +246,62 @@ Loading orders...
 <div class="orders-section" style="margin-top:20px;">
 
 <h2>📦 Product Management</h2>
+<div style="margin-bottom:20px;padding:15px;background:#f8f8f8;border-radius:10px;">
+
+<h3>Add New Product</h3>
+
+<input
+  id="new-product-name"
+  placeholder="Product Name"
+  style="padding:8px;margin:5px;width:200px;"
+>
+
+<input
+  id="new-product-price"
+  type="number"
+  placeholder="Price"
+  style="padding:8px;margin:5px;width:120px;"
+>
+
+<input
+  id="new-product-stock"
+  type="number"
+  placeholder="Stock"
+  style="padding:8px;margin:5px;width:120px;"
+>
+
+<input
+  id="new-product-unit"
+  placeholder="Unit (kg, pcs, etc)"
+  style="padding:8px;margin:5px;width:140px;"
+>
+
+<br>
+
+<input
+  id="new-product-image"
+  placeholder="Image URL"
+  style="padding:8px;margin:5px;width:400px;"
+>
+
+<br>
+
+<textarea
+  id="new-product-description"
+  placeholder="Product Description"
+  style="padding:8px;margin:5px;width:400px;height:80px;"
+></textarea>
+
+<br>
+
+<button
+  class="save-btn"
+  onclick="addProduct()"
+>
+  ➕ Add Product
+</button>
+
+</div>
 
 <div class="table-wrapper">
 

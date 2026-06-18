@@ -295,3 +295,62 @@ async function updateProduct(productId){
 
   alert("Product updated successfully");
 }
+async function addProduct(){
+
+  const product_name =
+    document.getElementById("new-product-name").value.trim();
+
+  const price =
+    document.getElementById("new-product-price").value;
+
+  const stock =
+    document.getElementById("new-product-stock").value;
+
+  const unit =
+    document.getElementById("new-product-unit").value.trim();
+
+  const image_url =
+    document.getElementById("new-product-image").value.trim();
+
+  const description =
+    document.getElementById("new-product-description").value.trim();
+
+  if(
+    !product_name ||
+    !price ||
+    !stock ||
+    !unit
+  ){
+    alert("Please fill required fields");
+    return;
+  }
+
+  const { error } = await dbClient
+    .from("stock")
+    .insert({
+      product_name,
+      price: Number(price),
+      stock_count: Number(stock),
+      unit,
+      image_url,
+      description,
+      is_active: true
+    });
+
+  if(error){
+    console.error(error);
+    alert("Unable to add product");
+    return;
+  }
+
+  alert("Product added successfully");
+
+  document.getElementById("new-product-name").value = "";
+  document.getElementById("new-product-price").value = "";
+  document.getElementById("new-product-stock").value = "";
+  document.getElementById("new-product-unit").value = "";
+  document.getElementById("new-product-image").value = "";
+  document.getElementById("new-product-description").value = "";
+
+  loadProducts();
+}
