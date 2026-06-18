@@ -40,6 +40,7 @@ async function checkAdminAccess() {
   document.getElementById("admin-content").style.display = "block";
 
   loadOrders();
+  loadProducts();
 }
 
 async function loadOrders() {
@@ -193,3 +194,104 @@ async function logoutAdmin() {
 }
 
 checkAdminAccess();
+async function loadProducts() {
+
+  const { data, error } = await dbClient
+    .from("stock")
+    .select("*")
+    .order("product_name");
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  renderProducts(data);
+}
+
+function renderProducts(products){
+
+  const tbody =
+    document.getElementById("products-body");
+
+  tbody.innerHTML = "";
+
+  products.forEach(product => {
+
+    tbody.innerHTML += `
+
+      <tr>
+
+        <td>${product.product_name}</td>
+
+        <td>
+          <input
+            type="number"
+            id="price-${product.id}"
+            value="${product.price}"
+            style="width:90px;"
+          >
+        </td>
+
+        <td>
+          <input
+            type="number"
+            id="stock-${product.id}"
+            value="${product.stock_count}"
+            style="width:90px;"
+          >
+        </td>
+
+        <td>
+          <input
+            type="text"
+            id="unit-${product.id}"
+            value="${product.unit}"
+            style="width:80px;"
+          >
+        </td>
+
+        <td>
+          <button
+            class="save-btn"
+            onclick="updateProduct('${product.id}')"
+          >
+            Save
+          </button>
+        </td>
+
+      </tr>
+
+    `;
+  });
+}
+
+async function updateProduct(productId){
+
+  const price =
+    document.getElementById(`price-${productId}`).value;
+
+  const stock =
+    document.getElementById(`stock-${productId}`).value;
+
+  const unit =
+    document.getElementById(`unit-${productId}`).value;
+
+  const { error } = await dbClient
+    .from("stock")
+    .update({
+      price: Number(price),
+      stock_count: Number(stock),
+      unit: unit,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", productId);
+
+  if(error){
+    console.error(error);
+    alert("Update failed");
+    return;
+  }
+
+  alert("Product updated successfully");
+}
