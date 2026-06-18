@@ -194,84 +194,165 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // LOAD PRODUCTS FROM GOOGLE SHEETS + STOCK FROM SUPABASE
-  var sheetURL = "https://script.google.com/macros/s/AKfycbzHBzO0nMVPpCuikqS2i70b1A1sawRQMXajTx28LAZhlG2bP2OHNTs3i6qd_iNMoTD-/exec";
+ // LOAD PRODUCTS FROM SUPABASE
 
-  fetch(sheetURL)
-    .then(function(response) { return response.json(); })
-    .then(async function(products) {
-      var container = document.getElementById("cards-container");
-      container.innerHTML = "";
+dbClient
+  .from('stock')
+  .select('*')
+  .eq('is_active', true)
+  .order('product_name')
 
-      const { data: stockData } = await dbClient.from('stock').select('*');
+  .then(function(response) {
 
-      var stockMap = {};
-      if(stockData) {
-        stockData.forEach(function(s) {
-          stockMap[s.product_name] = s.stock_count;
-        });
+    const products = response.data;
+
+    if(!products){
+      document.getElementById("cards-container").innerHTML =
+        "<p>No products found.</p>";
+      return;
+    }
+
+    var container =
+      document.getElementById("cards-container");
+
+    container.innerHTML = "";
+
+    products.forEach(function(product) {
+
+      var stock = product.stock_count || 0;
+
+      var isInStock = stock > 0;
+
+      var statusClass =
+        isInStock ? "instock" : "outstock";
+
+      var statusIcon =
+        isInStock ? "✅" : "❌";
+
+      var statusText =
+        isInStock ? "In Stock" : "Out of Stock";
+
+      var savings =
+        (product.market_price || 0) -
+        (product.price || 0);
+
+      var stockDisplay = "";
+
+      if(isInStock){
+
+        if(stock <= 10){
+
+          stockDisplay =
+          `<p class="stock-low">
+            🔥 Only ${stock} ${product.unit} left!
+          </p>`;
+
+        }else{
+
+          stockDisplay =
+          `<p class="stock-ok">
+            📦 ${stock} ${product.unit} available
+          </p>`;
+        }
       }
 
-      products.forEach(function(product) {
-        var stock = stockMap[product.name] !== undefined ? stockMap[product.name] : 0;
-        var isInStock = stock > 0;
-        var statusClass = isInStock ? "instock" : "outstock";
-        var statusIcon = isInStock ? "✅" : "❌";
-        var statusText = isInStock ? "In Stock" : "Out of Stock";
-        var savings = product.marketprice - product.ourprice;
+      var card = `
 
-        var stockDisplay = '';
-        if(isInStock) {
-          if(stock <= 10) {
-            stockDisplay = `<p class="stock-low">🔥 Only ${stock} ${product.unit} left!</p>`;
-          } else {
-            stockDisplay = `<p class="stock-ok">📦 ${stock} ${product.unit} available</p>`;
-          }
-        }
+        <div class="card">
 
-        var card = `
-          <div class="card">
-            <img src="${product.image}" alt="${product.name}"/>
-            <h3>${product.name}</h3>
-            <p>Our Price: <span class="our-price">₹${product.ourprice}/${product.unit}</span></p>
-            <p>Market Price: <span class="market-price">₹${product.marketprice}/${product.unit}</span></p>
-            <p>You Save: <span class="save">₹${savings}</span></p>
-            <p class="${statusClass}">${statusIcon} ${statusText}</p>
-            ${stockDisplay}
-            ${isInStock ? `
-            <div class="quantity-control">
-              <button onclick="changeQty(this, -1)">-</button>
-              <input type="number" value="1" min="1" max="${stock}" class="qty-input"/>
-              <button onclick="changeQty(this, 1)">+</button>
-            </div>
-            <button class="add-cart-btn" onclick="addToCart('${product.name}', ${product.ourprice}, '${product.unit}', this)">
-              🛒 Add to Cart
-            </button>` : ''}
+          <img
+            src="${product.image_url}"
+            alt="${product.product_name}"
+          />
+
+          <h3>${product.product_name}</h3>
+
+          <p>
+            ${product.description || ""}
+          </p>
+
+          <p>
+            Our Price:
+            <span class="our-price">
+              ₹${product.price}/${product.unit}
+            </span>
+          </p>
+
+          <p>
+            Market Price:
+            <span class="market-price">
+              ₹${product.market_price}/${product.unit}
+            </span>
+          </p>
+
+          <p>
+            You Save:
+            <span class="save">
+              ₹${savings}
+            </span>
+          </p>
+
+          <p class="${statusClass}">
+            ${statusIcon} ${statusText}
+          </p>
+
+          ${stockDisplay}
+
+          ${isInStock ? `
+
+          <div class="quantity-control">
+
+            <button onclick="changeQty(this, -1)">
+              -
+            </button>
+
+            <input
+              type="number"
+              value="1"
+              min="1"
+              max="${stock}"
+              class="qty-input"
+            />
+
+            <button onclick="changeQty(this, 1)">
+              +
+            </button>
+
           </div>
-        `;
-        container.innerHTML += card;
-      });
 
-      var cards = document.querySelectorAll('.card');
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1 });
+          <button
+            class="add-cart-btn"
+            onclick="addToCart(
+              '${product.product_name}',
+              ${product.price},
+              '${product.unit}',
+              this
+            )"
+          >
+            🛒 Add to Cart
+          </button>
 
-      cards.forEach(function(card) {
-        observer.observe(card);
-      });
+          ` : ''}
 
-    })
-    .catch(function() {
-      document.getElementById("cards-container").innerHTML = "<p>Unable to load products. Please try again later.</p>";
+        </div>
+
+      `;
+
+      container.innerHTML += card;
     });
 
-});
+  })
 
+  .catch(function(error){
+
+    console.error(error);
+
+    document.getElementById(
+      "cards-container"
+    ).innerHTML =
+    "<p>Unable to load products.</p>";
+
+  });
 </script>
 
 </body>
