@@ -244,25 +244,26 @@ console.log("Error:", response.error);
 
       var stockDisplay = "";
 
-      if(isInStock){
+if(isInStock){
 
-        if(stock <= 10){
+  if(stock <= 10){
 
-          stockDisplay =
-          `<p class="stock-low">
-            🔥 Only ${stock} ${product.unit} left!
-          </p>`;
+    stockDisplay = `
+      <p class="stock-low">
+        🔥 Only ${stock} ${product.unit} left
+      </p>
+    `;
 
-        }else{
+  } else {
 
-          stockDisplay =
-          `<p class="stock-ok">
-            📦 ${stock} ${product.unit} available
-          </p>`;
-        }
-      }
-
-      var card = `
+    stockDisplay = `
+      <p class="stock-ok">
+        📦 ${stock} ${product.unit} available
+      </p>
+    `;
+  }
+}
+     var card = `
 <div class="card visible">
 
   <img
@@ -298,6 +299,42 @@ console.log("Error:", response.error);
   <p class="${statusClass}">
     ${statusIcon} ${statusText}
   </p>
+
+  ${stockDisplay}
+
+  ${isInStock ? `
+    <div class="quantity-control">
+
+      <button onclick="changeQty(this,-1)">
+        -
+      </button>
+
+      <input
+        type="number"
+        value="1"
+        min="1"
+        max="${stock}"
+        class="qty-input"
+      />
+
+      <button onclick="changeQty(this,1)">
+        +
+      </button>
+
+    </div>
+
+    <button
+      class="add-cart-btn"
+      onclick="addToCart(
+        '${product.product_name}',
+        ${product.price},
+        '${product.unit}',
+        this
+      )"
+    >
+      🛒 Add To Cart
+    </button>
+  ` : ''}
 
 </div>
 `;
