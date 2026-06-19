@@ -219,7 +219,6 @@ function renderProducts(products){
   products.forEach(product => {
 
     tbody.innerHTML += `
-
       <tr>
 
         <td>${product.product_name}</td>
@@ -228,7 +227,16 @@ function renderProducts(products){
           <input
             type="number"
             id="price-${product.id}"
-            value="${product.price}"
+            value="${product.price || 0}"
+            style="width:90px;"
+          >
+        </td>
+
+        <td>
+          <input
+            type="number"
+            id="market-${product.id}"
+            value="${product.market_price || 0}"
             style="width:90px;"
           >
         </td>
@@ -237,7 +245,7 @@ function renderProducts(products){
           <input
             type="number"
             id="stock-${product.id}"
-            value="${product.stock_count}"
+            value="${product.stock_count || 0}"
             style="width:90px;"
           >
         </td>
@@ -246,22 +254,62 @@ function renderProducts(products){
           <input
             type="text"
             id="unit-${product.id}"
-            value="${product.unit}"
+            value="${product.unit || ''}"
             style="width:80px;"
           >
         </td>
 
         <td>
+          <textarea
+            id="desc-${product.id}"
+            style="width:220px;height:60px;"
+          >${product.description || ''}</textarea>
+        </td>
+
+        <td>
+          <input
+            type="text"
+            id="image-${product.id}"
+            value="${product.image_url || ''}"
+            style="width:220px;"
+          >
+        </td>
+
+        <td>
+          ${product.is_active
+            ? "🟢 Visible"
+            : "🔴 Hidden"}
+        </td>
+
+        <td>
+
           <button
             class="save-btn"
             onclick="updateProduct('${product.id}')"
           >
             Save
           </button>
+
+          <br><br>
+
+          <button
+            onclick="toggleProduct('${product.id}', ${product.is_active})"
+          >
+            ${product.is_active ? "Hide" : "Show"}
+          </button>
+
+          <br><br>
+
+          <button
+            style="background:red;color:white;"
+            onclick="deleteProduct('${product.id}')"
+          >
+            Delete
+          </button>
+
         </td>
 
       </tr>
-
     `;
   });
 }
@@ -271,18 +319,30 @@ async function updateProduct(productId){
   const price =
     document.getElementById(`price-${productId}`).value;
 
+  const marketPrice =
+    document.getElementById(`market-${productId}`).value;
+
   const stock =
     document.getElementById(`stock-${productId}`).value;
 
   const unit =
     document.getElementById(`unit-${productId}`).value;
 
+  const description =
+    document.getElementById(`desc-${productId}`).value;
+
+  const image_url =
+    document.getElementById(`image-${productId}`).value;
+
   const { error } = await dbClient
     .from("stock")
     .update({
       price: Number(price),
+      market_price: Number(marketPrice),
       stock_count: Number(stock),
-      unit: unit,
+      unit,
+      description,
+      image_url,
       updated_at: new Date().toISOString()
     })
     .eq("id", productId);
@@ -293,7 +353,50 @@ async function updateProduct(productId){
     return;
   }
 
-  alert("Product updated successfully");
+  alert("Product updated");
+}
+async function toggleProduct(productId, currentState){
+
+  const { error } = await dbClient
+    .from("stock")
+    .update({
+      is_active: !currentState
+    })
+    .eq("id", productId);
+
+  if(error){
+    console.error(error);
+    alert("Unable to update product");
+    return;
+  }
+
+  loadProducts();
+}
+async function deleteProduct(productId){
+
+  const confirmDelete =
+    confirm(
+      "Delete this product permanently?"
+    );
+
+  if(!confirmDelete){
+    return;
+  }
+
+  const { error } = await dbClient
+    .from("stock")
+    .delete()
+    .eq("id", productId);
+
+  if(error){
+    console.error(error);
+    alert("Delete failed");
+    return;
+  }
+
+  alert("Product deleted");
+
+  loadProducts();
 }
 async function addProduct(){
 
@@ -301,10 +404,13 @@ async function addProduct(){
     document.getElementById("new-product-name").value.trim();
 
   const price =
-    document.getElementById("new-product-price").value;
+  document.getElementById("new-product-price").value;
 
-  const stock =
-    document.getElementById("new-product-stock").value;
+const market_price =
+  document.getElementById("new-product-market").value;
+
+const stock =
+  document.getElementById("new-product-stock").value;
 
   const unit =
     document.getElementById("new-product-unit").value.trim();
@@ -328,15 +434,15 @@ async function addProduct(){
   const { error } = await dbClient
     .from("stock")
     .insert({
-      product_name,
-      price: Number(price),
-      stock_count: Number(stock),
-      unit,
-      image_url,
-      description,
-      is_active: true
-    });
-
+  product_name,
+  price: Number(price),
+  market_price: Number(market_price),
+  stock_count: Number(stock),
+  unit,
+  image_url,
+  description,
+  is_active: true
+});
   if(error){
     console.error(error);
     alert("Unable to add product");
@@ -347,6 +453,7 @@ async function addProduct(){
 
   document.getElementById("new-product-name").value = "";
   document.getElementById("new-product-price").value = "";
+  document.getElementById("new-product-market").value = "";
   document.getElementById("new-product-stock").value = "";
   document.getElementById("new-product-unit").value = "";
   document.getElementById("new-product-image").value = "";
